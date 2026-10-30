@@ -1,0 +1,128 @@
+@font-face{font-family:'Hail Elastic Light 1';src:url('../assets/fonts/HailElasticLight1.ttf') format('truetype');font-weight:100 900;font-display:swap}
+@font-face{font-family:'Hail Elastic Plain';src:url('../assets/fonts/HailElasticLight.ttf') format('truetype');font-weight:100 900;font-display:swap}
+@font-face{font-family:'WZ Num';src:url('../assets/fonts/Inter-VariableFont_opsz_wght.ttf') format('truetype');font-weight:100 900;font-display:swap;unicode-range:U+0030-0039,U+002E}
+@font-face{font-family:'Inter';src:url('../assets/fonts/Inter-VariableFont_opsz_wght.ttf') format('truetype');font-weight:100 900;font-display:swap;unicode-range:U+0041-005A,U+0061-007A}
+
+:root{
+  --bg:#090f0b; --accent:#3dffa3; --accent-rgb:61,255,163;
+  --text:#e9fff4; --dim:rgba(233,255,244,.46); --line:rgba(var(--accent-rgb),.14);
+  --font-main:'Inter','Hail Elastic Plain','Segoe UI','Tahoma','Noto Naskh Arabic',sans-serif;
+  --font-first:'Inter','Hail Elastic Light 1','Hail Elastic Plain','Segoe UI','Tahoma',sans-serif;
+}
+*{box-sizing:border-box;margin:0}
+html{background:var(--bg);color-scheme:dark}
+body{min-height:100vh;font-family:var(--font-main);color:var(--text);background:
+  radial-gradient(60% 45% at 50% 0%,rgba(var(--accent-rgb),.10),transparent 70%),var(--bg);
+  overflow-x:hidden;line-height:1.8}
+.fw{font-family:var(--font-first)}
+
+/* دوائر الخلفية: ثابتة، وبتتحرك ببطء جداً على الشاشات الكبيرة بس */
+.orbs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.orb{position:absolute;border-radius:50%;border:1px solid var(--line);opacity:.7}
+.orb:nth-child(1){width:46vmin;height:46vmin;top:-12vmin;left:-10vmin}
+.orb:nth-child(2){width:30vmin;height:30vmin;bottom:8vmin;right:-8vmin;background:radial-gradient(circle,rgba(var(--accent-rgb),.06),transparent 70%)}
+.orb:nth-child(3){width:18vmin;height:18vmin;bottom:-6vmin;left:22%}
+@media (min-width:900px) and (prefers-reduced-motion:no-preference){
+  .orb{animation:drift 22s ease-in-out infinite alternate}
+  .orb:nth-child(2){animation-duration:28s}
+  .orb:nth-child(3){animation-duration:34s}
+}
+@keyframes drift{to{transform:translate3d(0,-18px,0)}}
+
+main{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:0 20px}
+
+/* ───── الهيدر: الاسم بخط كبير في النص + الآية ───── */
+.hero{text-align:center;padding:10vh 0 2vh}
+.app{display:flex;flex-direction:column;align-items:center;margin-bottom:52px;text-align:center}
+.app-stage{position:relative;width:152px;height:152px;margin:40px 0 30px}
+.app-stage::before,.app-stage::after{content:"";position:absolute;border-radius:50%;pointer-events:none;
+  border:1px solid var(--line);transition:transform .8s ease,opacity .8s ease}
+.app-stage::before{inset:-26px}
+.app-stage::after{inset:-54px;opacity:.5}
+.app-icon{display:block;width:100%;height:100%;border-radius:22.5%;position:relative;
+  box-shadow:0 0 0 1px rgba(var(--accent-rgb),.3),0 16px 48px rgba(var(--accent-rgb),.22),0 0 100px rgba(var(--accent-rgb),.12);
+  transition:transform .6s ease,box-shadow .6s ease}
+.app-name{font-size:1.35rem;font-weight:700;letter-spacing:.14em;color:var(--text)}
+.app-ver{font-size:.9rem;color:var(--dim);margin-top:2px}
+@media (hover:hover){
+  .app-stage:hover .app-icon{transform:translateY(-4px);box-shadow:0 0 0 1px rgba(var(--accent-rgb),.5),0 20px 56px rgba(var(--accent-rgb),.3),0 0 110px rgba(var(--accent-rgb),.16)}
+  .app-stage:hover::before{transform:scale(1.05)}
+  .app-stage:hover::after{transform:scale(1.07);opacity:.8}
+}
+h1{margin:0;line-height:0}
+h1 img{display:block;margin:0 auto;width:min(88vw,620px);height:auto}
+.verse{font-size:clamp(1.6rem,5vw,2.6rem);margin-top:14px;color:var(--text);line-height:2}
+.tag{margin-top:10px;color:var(--dim);font-size:1.05rem}
+
+/* ───── التحميل ───── */
+h2{font-family:var(--font-first);font-weight:400;font-size:1.5rem;text-align:center;margin:6vh 0 3vh;color:var(--text)}
+.downloads{display:flex;flex-wrap:wrap;justify-content:center;gap:34px 44px}
+.dl{display:flex;flex-direction:column;align-items:center;gap:14px;text-decoration:none;color:var(--text);
+  -webkit-tap-highlight-color:transparent}
+.disc{position:relative;width:132px;height:132px;border-radius:50%;display:grid;place-items:center;
+  border:1px solid var(--line);background:rgba(var(--accent-rgb),.035);
+  transition:transform .45s ease,border-color .45s ease,box-shadow .45s ease,background .45s ease}
+.disc::before{content:"";position:absolute;inset:0;border-radius:50%;border:1px solid rgba(var(--accent-rgb),.5);
+  opacity:0;transform:scale(1);transition:transform .7s ease,opacity .7s ease}
+.disc svg{width:46px;height:46px;fill:none;stroke:var(--accent);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;
+  transition:transform .45s ease}
+.name{font-size:1.1rem}
+.meta{font-size:.85rem;color:var(--dim);min-height:1.5em;direction:ltr;text-align:center}
+.meta .sz,.meta .vr{display:block}
+.meta .sz{font-family:'WZ Num',var(--font-main)}
+.dl.off{opacity:.45;pointer-events:none}
+button.dl{background:none;border:0;padding:0;font:inherit;cursor:pointer}
+.name{display:inline-flex;align-items:center;gap:5px}
+.chev{width:14px;height:14px;fill:none;stroke:var(--dim);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .35s ease,stroke .35s ease}
+#dl-mf[aria-expanded=true] .chev{transform:rotate(180deg);stroke:var(--accent)}
+#dl-mf[aria-expanded=true] .disc{border-color:rgba(var(--accent-rgb),.55);background:rgba(var(--accent-rgb),.08)}
+.warn-b{position:absolute;top:5px;right:5px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
+  background:var(--bg);border:1px solid rgba(255,200,87,.55)}
+.warn-b svg{width:16px;height:16px;fill:none;stroke:#ffc857;stroke-width:2;stroke-linecap:round}
+.warn-b svg .d,.mf-note svg .d{fill:#ffc857;stroke:none}
+.mf{max-width:250px;margin:22px auto 0;padding:8px;border:1px solid var(--line);border-radius:20px;background:rgba(var(--accent-rgb),.03);
+  display:flex;flex-direction:column;gap:6px;animation:mfin .35s ease both}
+.mf[hidden]{display:none}
+@keyframes mfin{from{opacity:0;transform:translateY(-8px)}}
+.mf-note{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--dim);font-size:.75rem;padding:2px 4px 4px;line-height:1.5}
+.mf-note svg{width:15px;height:15px;flex:none;fill:none;stroke:#ffc857;stroke-width:1.8;stroke-linecap:round}
+.mf-item{display:flex;align-items:center;gap:10px;padding:7px 12px;border:1px solid var(--line);border-radius:14px;font-size:.9rem;color:var(--text);text-decoration:none;
+  transition:background .3s ease,border-color .3s ease}
+.mf-item svg{width:19px;height:19px;flex:none;fill:none;stroke:var(--accent);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.mf-item .t{flex:1}
+.mf-item .go{width:16px;height:16px;opacity:.7}
+.mf-item.off{opacity:.45;pointer-events:none}
+@media (hover:hover){.mf-item:hover{background:rgba(var(--accent-rgb),.08);border-color:rgba(var(--accent-rgb),.5)}}
+.mf-item:focus-visible{outline:none;border-color:var(--accent)}
+@media (hover:hover){
+  .dl:hover .disc,.dl:focus-visible .disc{transform:translateY(-6px);border-color:rgba(var(--accent-rgb),.55);
+    background:rgba(var(--accent-rgb),.08);box-shadow:0 10px 40px rgba(var(--accent-rgb),.16)}
+  .dl:hover .disc::before,.dl:focus-visible .disc::before{opacity:1;transform:scale(1.22);opacity:0}
+  .dl:hover .disc svg{transform:scale(1.08)}
+}
+.dl:focus-visible{outline:none}
+.dl:focus-visible .disc{border-color:var(--accent)}
+
+.soon{margin:9vh auto 6vh;max-width:520px;text-align:center;padding:22px 24px;border:1px solid var(--line);
+  border-radius:28px;background:rgba(var(--accent-rgb),.03)}
+.soon b{font-family:var(--font-first);font-weight:400;color:var(--accent);font-size:1.2rem}
+.soon p{color:var(--dim);margin-top:6px}
+footer{text-align:center;color:var(--dim);font-size:.85rem;padding:0 0 5vh}
+footer a{color:var(--accent);text-decoration:none}
+footer .by{margin-top:4px;font-family:var(--font-first);font-size:.9rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* مديا فاير: القايمة بتنزل تحت دايرة مديا فاير بالظبط، النسختين فوق بعض */
+.dl-wrap{display:flex;flex-direction:column;align-items:center}
+.mf{width:176px;max-width:none;margin:16px -22px 0;padding:8px;border-radius:20px;display:flex;flex-direction:column;gap:6px}
+.mf-note{font-size:.66rem;padding:2px 2px 4px;white-space:nowrap;gap:5px}
+.mf-item{padding:8px 12px;gap:10px;font-size:.88rem}
+
+@media (min-width:700px){
+  .mf{width:270px;margin:18px -69px 0;padding:12px;gap:9px;border-radius:24px}
+  .mf-note{font-size:.85rem;gap:8px;padding:2px 4px 6px}
+  .mf-note svg{width:17px;height:17px}
+  .mf-item{padding:12px 16px;font-size:1rem;gap:12px;border-radius:18px}
+  .mf-item svg{width:22px;height:22px}
+  .mf-item .go{width:18px;height:18px}
+}
