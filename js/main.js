@@ -1,8 +1,7 @@
 /* روابط التحميل: لكل نظام بنجيب أحدث إصدار فيه ملف مناسب له (علشان لو الإصدار الأخير فيه ويندوز بس، لينكس يفضل شغال من اللي قبله) */
 const TARGETS = {
   "dl-win":     [/setup.*\.exe$/i, /\.exe$/i],
-  "dl-linux":   [/\.AppImage$/i, /\.deb$/i],
-  "dl-android": [/android.*\.apk$/i]          /* لازم اسم الملف يحتوي android، علشان حزمة Alpine (.apk) ما تتلخبطش معاه */
+  "dl-linux":   [/\.AppImage$/i, /\.deb$/i]
 };
 const RELEASES = "https://github.com/" + REPO + "/releases";
 document.getElementById("gh").href = "https://github.com/" + REPO;
@@ -23,7 +22,7 @@ function apply(rels){
       el.classList.remove("off");
       const meta = el.querySelector(".meta"); meta.replaceChildren();          /* سطرين: الحجم فوق، ورقم الإصدار تحته */
       for (const [c, t] of [["sz", fmt(hit.size)], ["vr", tag.replace(/^v/i, "v")]]) { const s = document.createElement("span"); s.className = c; s.textContent = t; meta.append(s); }
-    } else if (id !== "dl-android"){
+    } else {
       el.href = RELEASES;                       /* لو الملف لسه مش مرفوع: يفتح صفحة الإصدارات */
     }
   }
@@ -64,4 +63,31 @@ function fallback(){
   btn.addEventListener("click", e => { e.stopPropagation(); set(box.hidden); });
   document.addEventListener("click", e => { if (!box.hidden && !box.contains(e.target)) set(false); });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !box.hidden) { set(false); btn.focus(); } });
+})();
+
+/* أندرويد: لينك ثابت لأحدث WZAKER.apk في ريبو الأندرويد، وبعدين نجيب الحجم والإصدار لو GitHub رد */
+(async () => {
+  const el = document.getElementById("dl-android");
+  if (!el) return;
+  el.href = "https://github.com/" + ANDROID_REPO + "/releases/latest/download/WZAKER.apk";
+  el.classList.remove("off");
+  const KEY = "wz_android1", TTL = 10 * 60 * 1000;
+  const show = d => {
+    const meta = el.querySelector(".meta"); meta.replaceChildren();
+    for (const [c, t] of [["sz", fmt(d.size)], ["vr", d.ver]]) { const s = document.createElement("span"); s.className = c; s.textContent = t; meta.append(s); }
+  };
+  try {
+    const c = JSON.parse(sessionStorage.getItem(KEY) || "null");
+    if (c && Date.now() - c.t < TTL) return show(c.d);
+  } catch (e) {}
+  try {
+    const r = await fetch("https://api.github.com/repos/" + ANDROID_REPO + "/releases/latest", {headers:{Accept:"application/vnd.github+json"}});
+    if (!r.ok) throw 0;
+    const rel = await r.json();
+    const a = (rel.assets || []).find(x => /\.apk$/i.test(x.name));
+    if (!a) throw 0;
+    const d = { size: a.size, ver: "v" + String(rel.tag_name || "").replace(/^android-v?/i, "").replace(/-\d+$/, "") };
+    try { sessionStorage.setItem(KEY, JSON.stringify({t: Date.now(), d})); } catch (e) {}
+    show(d);
+  } catch (e) {}
 })();
