@@ -254,7 +254,7 @@
     const reg = S.g && !!S.name, mine = reg ? D.count + S.pending : 0, p = D.goal ? Math.min(mine, D.goal) : 0, ok = D.done || (reg && D.goal > 0 && mine >= D.goal);
     const pct = D.goal ? Math.round(p / D.goal * 100) : 0;
     $("dy-g").textContent = num(D.goal);
-    $("dy-u").style.width = pct + "%"; $("dy-bar").setAttribute("aria-valuenow", pct);
+    $("dy-u").style.width = (p > 0 ? Math.max(pct, 2) : 0) + "%"; $("dy-bar").setAttribute("aria-valuenow", pct);
     $("dy-me").classList.toggle("done", ok);
     $("dy-me").textContent = !S.g ? "سجّل دخولك ليُحتسب تسبيحك." : !S.name ? "اختر اسمك من القائمة ليُحتسب تسبيحك." : ok ? "ما شاء الله، بلغتَ هدف اليوم." : "تقدّمك: " + num(p) + " من " + num(D.goal);
     $("dy-note").textContent = (D.reached > 3 ? "بلغ الهدف اليوم " + who(D.reached) + ". " : "") + (D.end ? "ينتهي اليوم بعد " + left(D.end - (Date.now() + D.off)) : "");
