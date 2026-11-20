@@ -63,10 +63,12 @@
     $("av-l").textContent = [...(user.name || "؟")][0];
     const img = $("av-img"); img.hidden = true;
     if (user.avatar) { img.onload = () => { img.hidden = false; }; img.onerror = () => { img.hidden = true; }; img.src = user.avatar; }
-    $("acct-hint").textContent = user.named ? "اكتب الاسم الجديد." : "الاسم الذي سيظهر للآخرين.";
+    $("acct-hint").textContent = user.named ? "الاسم الجديد" : "اختر الاسم الذي سيظهر للآخرين";
+    $("acct-cancel").hidden = !user.named;
     $("acct-ed").hidden = !user.named || editing;
   }
   $("acct-ed").addEventListener("click", () => { editing = true; acct(); $("acct-in").value = user.name || ""; $("acct-in").focus(); });
+  $("acct-cancel").addEventListener("click", () => { editing = false; say("acct-msg", ""); acct(); });
   $("ct-name-go").addEventListener("click", () => { window.WZ_menu ? WZ_menu.open() : 0; setTimeout(() => $("acct-in").focus({ preventScroll: true }), 400); });
   $("acct-name").addEventListener("submit", async e => {
     e.preventDefault(); say("acct-msg", "");
@@ -132,7 +134,6 @@
   function paint() {
     if (!ST) return;
     const t = now(), started = t >= ST.start, w = ST.winner;
-    $("ct-rule").textContent = `أول من يبلغ ${num(ST.target)} تسبيحة يُكرَّم في لوحة المكرَّمين.`;
     const needEnter = ST.auth && ST.named && !ST.entered;
     $("ct-wait").hidden = started;                       // العدّ التنازلي لحد بداية الجولة (بعد ما الجولة اللي فاتت اتكسبت)
     $("ct-in").hidden = !(ST.entered && !started);

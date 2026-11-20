@@ -22,7 +22,6 @@
 .mn-sec .acct-nm{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;line-height:1.5}   /* الاسم كامل بدون .. */
 .mn-sec .acct-act{width:100%;flex:none}
 .mn-sec .acct-act button{flex:1;justify-content:center}
-.mn-sec .acct-name .who{flex-wrap:wrap}
 .mn-sec .acct-t{font-size:.85rem}
 .mn-nav{display:flex;flex-direction:column;gap:6px;padding-top:14px;border-top:1px solid var(--line)}
 .mn-i{display:flex;align-items:center;gap:14px;width:100%;padding:12px 14px;font:inherit;font-size:1rem;color:var(--text);text-align:start;cursor:pointer;
@@ -53,23 +52,11 @@ body.mn-lock{overflow:hidden}
 .mn-sec .av{width:52px;height:52px}
 .mn-sec .acct-nm{font-size:1.05rem}
 .mn-sec .acct-act{display:flex;gap:8px;width:100%}
-.mn-sec .acct-act button,.mn-sec .acct-name .who button{flex:1;display:flex;align-items:center;justify-content:center;font:inherit;font-size:.9rem;
-  padding:9px 14px !important;border-radius:999px;cursor:pointer;transition:background .3s ease,border-color .3s ease,color .3s ease}
-.mn-sec #acct-ed,.mn-sec .acct-name .who button{color:var(--accent);background:rgba(var(--accent-rgb),.05);border:1px solid rgba(var(--accent-rgb),.35)}
 .mn-sec #acct-out{color:var(--dim);background:transparent;border:1px solid var(--line)}
 @media (hover:hover){
-  .mn-sec #acct-ed:hover,.mn-sec .acct-name .who button:hover{background:rgba(var(--accent-rgb),.12);border-color:var(--accent)}
   .mn-sec #acct-out:hover{color:#ff8d8d;border-color:rgba(255,141,141,.5);background:rgba(255,141,141,.06)}}
-.mn-sec .acct-act button:focus-visible,.mn-sec .acct-name .who button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.mn-sec .acct-name .who{margin:8px 0 0;gap:8px}
-.mn-sec .acct-name input{flex:1;min-width:0;font:inherit;font-size:.9rem;color:var(--text);background:rgba(var(--accent-rgb),.04);border:1px solid var(--line);border-radius:999px;padding:9px 14px;text-align:center}
-.mn-sec .acct-name input:focus{outline:none;border-color:rgba(var(--accent-rgb),.55)}
 .mn-sec .msg{min-height:0;color:var(--dim);font-size:.85rem;text-align:center}
 /* الاختصارات */
-.mn-nav{gap:2px}
-.mn-i{border-radius:14px;padding:11px 12px}
-.mn-i::after{content:"";margin-inline-start:auto;width:7px;height:7px;border-left:1.5px solid var(--dim);border-bottom:1.5px solid var(--dim);transform:rotate(45deg);opacity:.6;transition:border-color .25s ease,opacity .25s ease,margin .25s ease}
-@media (hover:hover){.mn-i:hover::after{border-color:var(--accent);opacity:1;margin-inline-end:4px}}
 .mn.on .mn-i{animation:mn-in .38s ease both}
 .mn.on .mn-i:nth-child(1){animation-delay:.08s}.mn.on .mn-i:nth-child(2){animation-delay:.12s}.mn.on .mn-i:nth-child(3){animation-delay:.16s}
 .mn.on .mn-i:nth-child(4){animation-delay:.2s}.mn.on .mn-i:nth-child(5){animation-delay:.24s}.mn.on .mn-i:nth-child(6){animation-delay:.28s}
@@ -79,3 +66,43 @@ body.mn-lock{overflow:hidden}
 /* الترويسة: شعار "وذكر" الكتابي بدل الأيقونة وكلمة القائمة */
 .mn-brand img{width:auto;height:64px;border-radius:0;box-shadow:none;margin:-8px 0 -10px -6px;display:block}
 .mn-top{padding:0 2px 4px}
+
+/* ───── تنسيق القائمة (v5) ───── */
+/* أزرار بطاقة الحساب */
+.mn-sec .acct-act button{flex:1;display:flex;align-items:center;justify-content:center;font:inherit;font-size:.9rem;padding:10px 14px !important;border-radius:14px;cursor:pointer;
+  transition:background .3s ease,border-color .3s ease,color .3s ease}
+.mn-sec #acct-ed{color:var(--accent);background:rgba(var(--accent-rgb),.06);border:1px solid rgba(var(--accent-rgb),.32)}
+.mn-sec #acct-out{color:var(--dim);background:transparent;border:1px solid var(--line)}
+@media (hover:hover){
+  .mn-sec #acct-ed:hover{background:rgba(var(--accent-rgb),.14);border-color:var(--accent)}
+  .mn-sec #acct-out:hover{color:#ff8d8d;border-color:rgba(255,141,141,.5);background:rgba(255,141,141,.06)}}
+.mn-sec .acct-act button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* إضافة / تعديل الاسم: لوحة مستقلة، الخانة بعرض كامل، وتحتها حفظ وإلغاء */
+.mn-sec .acct-name{display:flex;flex-direction:column;gap:10px;width:100%;padding:16px;border-radius:20px;text-align:start;
+  border:1px solid rgba(var(--accent-rgb),.28);background:rgba(var(--accent-rgb),.05);animation:mn-in .3s ease both}
+.mn-sec .acct-name[hidden]{display:none}
+.mn-sec .an-l{font-size:.88rem;color:var(--dim);line-height:1.6}
+.mn-sec .acct-name input{width:100%;font:inherit;font-size:1rem;color:var(--text);text-align:start;padding:12px 16px;border-radius:14px;
+  background:rgba(9,15,11,.6);border:1px solid var(--line);transition:border-color .25s ease,box-shadow .25s ease}
+.mn-sec .acct-name input::placeholder{color:var(--dim);opacity:.8}
+.mn-sec .acct-name input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.14)}
+.mn-sec .an-act{display:flex;gap:8px}
+.mn-sec .an-act button{font:inherit;font-size:.95rem;padding:11px 18px;border-radius:14px;cursor:pointer;transition:background .25s ease,border-color .25s ease,color .25s ease,transform .15s ease}
+.mn-sec .an-save{flex:1;font-weight:600;color:#04140b;background:var(--accent);border:1px solid var(--accent)}
+.mn-sec .an-cancel{flex:none;color:var(--dim);background:transparent;border:1px solid var(--line)}
+.mn-sec .an-act button[hidden]{display:none}
+.mn-sec .an-act button:active{transform:scale(.97)}
+@media (hover:hover){
+  .mn-sec .an-save:hover{background:#6dffbb;border-color:#6dffbb}
+  .mn-sec .an-cancel:hover{color:var(--text);border-color:rgba(var(--accent-rgb),.4)}}
+.mn-sec .an-act button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* الاختصارات: بدون أسهم، أيقونة في مربع، وفاصل قبل «حمّل البرنامج» */
+.mn-nav{gap:4px;padding-top:12px}
+.mn-i{gap:14px;padding:9px 10px;border-radius:16px;font-size:1.02rem}
+.mn-i svg{width:22px;height:22px;padding:9px;border-radius:13px;background:rgba(var(--accent-rgb),.08);box-shadow:inset 0 0 0 1px rgba(var(--accent-rgb),.14);
+  transition:background .25s ease,box-shadow .25s ease}
+@media (hover:hover){.mn-i:hover svg{background:rgba(var(--accent-rgb),.16);box-shadow:inset 0 0 0 1px rgba(var(--accent-rgb),.4)}}
+.mn-i[data-go="download"]{margin-top:8px;position:relative}
+.mn-i[data-go="download"]::before{content:"";position:absolute;top:-6px;inset-inline:10px;height:1px;background:var(--line)}
