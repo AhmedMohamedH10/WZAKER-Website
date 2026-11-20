@@ -25,13 +25,7 @@
   // ───── دخول جوجل ─────
   function gbtns() {
     if (!window.google || !google.accounts) return;
-    for (const id of ["g-btn", "g-btn2", "g-btn3"]) {
-      const c = $(id); c.replaceChildren(); c.classList.remove("ready");
-      const hit = document.createElement("div"); hit.className = "g-hit"; c.append(hit);   // زر جوجل الحقيقي شفاف فوق الزر المرسوم بطابع الموقع
-      const w = Math.round(Math.min(400, Math.max(200, c.offsetWidth || 260)));
-      google.accounts.id.renderButton(hit, { theme: "filled_black", size: "large", shape: "pill", text: "signin_with", locale: "ar", width: w });
-      c.classList.add("ready");
-    }
+    for (const id of ["g-btn", "g-btn2", "g-btn3"]) { $(id).replaceChildren(); google.accounts.id.renderButton($(id), { theme: "filled_black", size: "large", shape: "pill", text: "signin_with", locale: "ar" }); }
   }
   addEventListener("wz-gate", () => setTimeout(gbtns, 0));
   addEventListener("wz-menu", () => { if (!user) setTimeout(gbtns, 0); });   // القائمة الجانبية: نرسم زر جوجل بعد ما تبقى ظاهرة (جوجل بيرسمه فاضي لو الحاوية مخفية)   // القائمة كانت مخفية: نرسم الزر بعد ظهورها
@@ -63,9 +57,9 @@
     $("av-l").textContent = [...(user.name || "؟")][0];
     const img = $("av-img"); img.hidden = true;
     if (user.avatar) { img.onload = () => { img.hidden = false; }; img.onerror = () => { img.hidden = true; }; img.src = user.avatar; }
-    $("acct-hint").textContent = user.named ? "الاسم الجديد" : "اختر الاسم الذي سيظهر للآخرين";
-    $("acct-cancel").hidden = !user.named;
+    $("acct-hint").textContent = user.named ? "اكتب الاسم الجديد." : "الاسم الذي سيظهر للآخرين.";
     $("acct-ed").hidden = !user.named || editing;
+    $("acct-cancel").hidden = !user.named;
   }
   $("acct-ed").addEventListener("click", () => { editing = true; acct(); $("acct-in").value = user.name || ""; $("acct-in").focus(); });
   $("acct-cancel").addEventListener("click", () => { editing = false; say("acct-msg", ""); acct(); });
@@ -134,6 +128,7 @@
   function paint() {
     if (!ST) return;
     const t = now(), started = t >= ST.start, w = ST.winner;
+    $("ct-rule").textContent = `أول من يبلغ ${num(ST.target)} تسبيحة يُكرَّم في لوحة المكرَّمين.`;
     const needEnter = ST.auth && ST.named && !ST.entered;
     $("ct-wait").hidden = started;                       // العدّ التنازلي لحد بداية الجولة (بعد ما الجولة اللي فاتت اتكسبت)
     $("ct-in").hidden = !(ST.entered && !started);

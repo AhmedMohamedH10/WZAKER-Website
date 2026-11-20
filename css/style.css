@@ -138,3 +138,7 @@ footer .by{margin-top:4px;font-family:var(--font-first);font-size:.9rem}
     -webkit-mask-image:radial-gradient(ellipse closest-side,#000 55%,transparent);mask-image:radial-gradient(ellipse closest-side,#000 55%,transparent)}
   .dl .name{position:relative}
 }
+
+/* حماية الشعار من السحب والحفظ السهل: مفيش تحديد ولا سحب ولا قائمة "حفظ الصورة" */
+.wz-logo{-webkit-user-drag:none;user-drag:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;pointer-events:none}
+.sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}

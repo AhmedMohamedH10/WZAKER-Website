@@ -35,7 +35,7 @@
   }
   function point(el) {
     el.classList.remove("pointed"); void el.offsetWidth; el.classList.add("pointed");
-    setTimeout(() => el.classList.remove("pointed"), 2800);
+    setTimeout(() => el.classList.remove("pointed"), 1600);
   }
   function go(key) {
     const el = q(T[key][0]); if (!el) return;
@@ -50,5 +50,7 @@
   $("mn-x").addEventListener("click", () => close());
   addEventListener("keydown", e => { if (e.key === "Escape" && mn.classList.contains("on")) close(); });
   mn.addEventListener("click", e => { const b = e.target.closest(".mn-i"); if (b) go(b.dataset.go); });
+  // الشعار: منع السحب وقائمة الحفظ (ردع للنسخ السهل، مش حماية مطلقة)
+  for (const ev of ["dragstart", "contextmenu"]) document.addEventListener(ev, e => { if (e.target.closest && e.target.closest(".wz-logo,.mn-logo,h1,.app-stage")) e.preventDefault(); });
   window.WZ_menu = { open, close };
 })();
