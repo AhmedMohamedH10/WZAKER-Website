@@ -161,23 +161,20 @@
 .orn::after{transform:scaleX(-1)}
 .orn i{flex:none;width:9px;height:9px;border:1px solid rgba(var(--accent-rgb),.6);transform:rotate(45deg);box-shadow:0 0 12px rgba(var(--accent-rgb),.35)}
 .orn + .ch{margin-top:7vh}
-.sec-ic{display:grid;place-items:center;width:54px;height:54px;margin:0 auto 14px;border-radius:50%;border:1px solid var(--line);background:rgba(var(--accent-rgb),.04);
+/* أيقونة القسم جنب العنوان (مش فوقه) علشان الصفحة ما تطولش */
+.sec-ic{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:rgba(var(--accent-rgb),.04);
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
-.sec-ic svg{width:25px;height:25px;fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.sec-ic svg{width:21px;height:21px;fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .sec-ic svg .d{fill:var(--accent);stroke:none}
-.duo{position:relative;z-index:1;display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:7vh 28px;margin:7vh auto 5vh}
-.duo > .sec{flex:1 1 400px;max-width:520px;min-width:0;margin:0;display:flex;flex-direction:column;text-align:center}
+/* الأقسام تحت الترتيب: عمود واحد بنفس عرض باقي الصفحة */
+.duo{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:6vh;margin:6vh auto 4vh;max-width:520px}
+.duo > .sec{width:100%;max-width:520px;min-width:0;margin:0;display:grid;grid-template-columns:1fr auto auto 1fr;align-items:center;column-gap:12px;text-align:center}
 .duo > .sec[hidden]{display:none!important}
-.duo .sec > h2{margin:0 0 3vh}
-.duo .dy-card,.duo .ct-card{flex:1;display:flex;flex-direction:column;justify-content:center}
-.duo .ct .msg{margin-top:8px}
+.duo .sec > .sec-ic{grid-column:2}
+.duo .sec > h2{margin:0;grid-column:3}
+.duo .sec > :not(.sec-ic):not(h2){grid-column:1/-1}
+.duo .sec > .dy-card,.duo .sec > .ct-card{margin-top:2.6vh}
 .duo .ct .msg:empty{display:none}
-
-/* لوحة الترتيب: التبويب جزء من المربع نفسه (عنوان للوحة)، مش زر سايب فوقها */
-.lb{margin-top:34px;border:1px solid var(--line);border-radius:24px;overflow:hidden;background:rgba(var(--accent-rgb),.025);
-  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
-.lb .tabs{display:flex;justify-content:center;gap:6px;margin:0;padding:10px 12px;border-bottom:1px solid var(--line);background:rgba(var(--accent-rgb),.05)}
-.ch .lb .tabs button{padding:6px 18px;border-color:transparent;background:transparent;color:var(--dim);font-size:.95rem;-webkit-backdrop-filter:none;backdrop-filter:none}
-.ch .lb .tabs button[aria-pressed=true]{background:rgba(var(--accent-rgb),.14);border-color:rgba(var(--accent-rgb),.35);color:var(--accent)}
-@media (hover:hover){.ch .lb .tabs button:not([aria-pressed=true]):hover{color:var(--text);background:rgba(var(--accent-rgb),.06);border-color:transparent}}
-.lb .board{border:0;border-radius:0;background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.duo .ct .msg{margin-top:8px}
+.orn{margin-top:6vh}
+.orn + .ch{margin-top:6vh}
