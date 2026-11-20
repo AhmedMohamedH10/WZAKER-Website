@@ -7,55 +7,57 @@
 @media (hover:hover){.mn-btn:hover{background:rgba(var(--accent-rgb),.08);border-color:rgba(var(--accent-rgb),.35);color:var(--accent)}}
 .mn-ov{position:fixed;inset:0;z-index:55;background:rgba(0,0,0,.5);opacity:0;transition:opacity .3s ease}
 .mn-ov.on{opacity:1}
-.mn{position:fixed;top:0;right:0;bottom:0;z-index:60;width:min(310px,86vw);display:flex;flex-direction:column;gap:16px;padding:14px 16px 24px;overflow-y:auto;
+.mn{position:fixed;top:0;right:0;bottom:0;z-index:60;width:min(380px,90vw);display:flex;flex-direction:column;gap:18px;padding:18px 18px 28px;overflow-y:auto;
   background:linear-gradient(180deg,rgba(var(--accent-rgb),.045),transparent 40%),#0a110d;border-inline-start:1px solid var(--line);
   box-shadow:-10px 0 32px rgba(0,0,0,.4);transform:translateX(104%);visibility:hidden;transition:transform .3s ease,visibility 0s linear .3s}
 .mn.on{transform:none;visibility:visible;transition:transform .3s ease}
 .mn-top{display:flex;align-items:center;justify-content:space-between;padding:2px 2px 0}
 .mn-logo{display:block;line-height:0}
-.mn-logo img{display:block;height:38px;width:auto}
-.mn-x{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;padding:0;cursor:pointer;color:var(--dim);background:none;border:1px solid var(--line);transition:color .2s ease,border-color .2s ease}
-.mn-x svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.mn-logo img{display:block;height:46px;width:auto}
+.mn-x{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;padding:0;cursor:pointer;color:var(--dim);background:none;border:1px solid var(--line);transition:color .2s ease,border-color .2s ease}
+.mn-x svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
 @media (hover:hover){.mn-x:hover{color:var(--accent);border-color:rgba(var(--accent-rgb),.4)}}
 .mn-x:focus-visible{outline:2px solid rgba(var(--accent-rgb),.6);outline-offset:2px}
 
 /* الحساب */
 .mn-sec .acct{margin:0;max-width:none;gap:10px;align-items:stretch}
-.mn-sec .acct-card{flex-direction:row;flex-wrap:wrap;align-items:center;gap:12px 12px;padding:14px;border-radius:18px;background:rgba(var(--accent-rgb),.04);border:1px solid var(--line);box-shadow:none}
-.mn-sec .av{width:48px;height:48px;border-radius:14px;background:rgba(var(--accent-rgb),.08);box-shadow:0 0 0 1px rgba(var(--accent-rgb),.18)}
+.mn-sec .acct-card{flex-direction:row;flex-wrap:wrap;align-items:center;gap:14px;padding:18px;border-radius:20px;background:rgba(var(--accent-rgb),.04);border:1px solid var(--line);box-shadow:none}
+.mn-sec .av{width:60px;height:60px;border-radius:16px;background:rgba(var(--accent-rgb),.08);box-shadow:0 0 0 1px rgba(var(--accent-rgb),.18)}
 .mn-sec .acct-id{flex:1 1 0;min-width:0}
-.mn-sec .acct-nm{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;line-height:1.5;font-size:1rem;font-weight:600}   /* الاسم كامل بدون .. */
-.mn-sec .acct-s{font-size:.78rem}
-.mn-sec .acct-act{width:100%;flex:none;gap:8px}
-.mn-sec .acct-act button,.mn-sec .nm-act button{flex:1;display:inline-flex;align-items:center;justify-content:center;height:38px;padding:0 12px !important;font:inherit;font-size:.88rem;line-height:1;
-  border-radius:12px;cursor:pointer;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;transition:background .2s ease,border-color .2s ease,color .2s ease}
+.mn-sec .acct-nm{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;line-height:1.5;font-size:1.12rem;font-weight:600}   /* الاسم كامل بدون .. */
+.mn-sec .acct-s{font-size:.85rem}
+.mn-sec .acct-act{width:100%;flex:none;gap:10px}
+.mn-sec .acct-act[hidden]{display:none}
+.mn-sec .acct-act button,.mn-sec .nm-act button{flex:1;display:inline-flex;align-items:center;justify-content:center;height:46px;padding:0 12px !important;font:inherit;font-size:.97rem;line-height:1;
+  border-radius:14px;cursor:pointer;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;transition:background .2s ease,border-color .2s ease,color .2s ease}
 .mn-sec .acct-act button{color:var(--accent);background:rgba(var(--accent-rgb),.06);border:1px solid rgba(var(--accent-rgb),.22)}
 .mn-sec #acct-out{color:var(--dim);background:none;border-color:var(--line)}
 @media (hover:hover){.mn-sec .acct-act button:hover{background:rgba(var(--accent-rgb),.11);border-color:rgba(var(--accent-rgb),.4)}.mn-sec #acct-out:hover{color:var(--text);background:rgba(255,255,255,.04)}}
 
 /* تعديل الاسم: عنوان، خانة، زرّين */
-.mn-sec .acct-name{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:18px;background:rgba(var(--accent-rgb),.04);border:1px solid var(--line)}
+.mn-sec .acct-name{display:flex;flex-direction:column;gap:12px;width:100%;margin:0;padding:16px 0 0;border:0;border-top:1px solid var(--line);border-radius:0;background:none}
+.mn [hidden]{display:none !important}   /* الـ hidden كان مش شغّال جوه القائمة، فكان الفورم ظاهر دايمًا */
 .mn-sec .nm-l{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}   /* للقارئ الصوتي فقط */
-.mn-sec .acct-name input{width:100%;height:44px;padding:0 14px;font:inherit;font-size:.98rem;color:var(--text);background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:12px;
+.mn-sec .acct-name input{width:100%;height:48px;padding:0 14px;font:inherit;font-size:1.02rem;color:var(--text);background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:12px;
   box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;transition:border-color .2s ease}
 .mn-sec .acct-name input::placeholder{color:rgba(233,255,244,.28)}
 .mn-sec .acct-name input:focus{outline:none;border-color:rgba(var(--accent-rgb),.5)}
-.mn-sec .nm-act{display:flex;gap:8px}
+.mn-sec .nm-act{display:flex;gap:10px}
 .mn-sec .nm-save{flex:2 !important;color:var(--accent);font-weight:600;background:rgba(var(--accent-rgb),.14);border:1px solid rgba(var(--accent-rgb),.4)}
 .mn-sec .nm-cancel{color:var(--dim);background:none;border:1px solid var(--line)}
 .mn-sec .nm-cancel[hidden]{display:none}
 @media (hover:hover){.mn-sec .nm-save:hover{background:rgba(var(--accent-rgb),.22)}.mn-sec .nm-cancel:hover{color:var(--text);background:rgba(255,255,255,.04)}}
 .mn-sec .acct-name button:focus-visible,.mn-sec .acct-act button:focus-visible{outline:2px solid rgba(var(--accent-rgb),.6);outline-offset:2px}
-.mn-sec .acct-t{font-size:.85rem}
-.mn-sec .msg{margin:0;font-size:.82rem;text-align:start}
+.mn-sec .acct-t{font-size:.92rem}
+.mn-sec .msg{margin:0;font-size:.88rem;text-align:start}
 .mn-sec .msg:empty,.mn-sec .g-btn:empty{display:none}
 
 /* الاختصارات */
-.mn-nav{display:flex;flex-direction:column;gap:2px;padding-top:12px;border-top:1px solid var(--line)}
-.mn-i{display:flex;align-items:center;gap:14px;width:100%;padding:8px 6px;font:inherit;font-size:.97rem;color:var(--text);text-align:start;cursor:pointer;
+.mn-nav{display:flex;flex-direction:column;gap:4px;padding-top:14px;border-top:1px solid var(--line)}
+.mn-i{display:flex;align-items:center;gap:16px;width:100%;padding:10px 8px;font:inherit;font-size:1.08rem;color:var(--text);text-align:start;cursor:pointer;
   background:none;border:0;border-radius:14px;transition:background .2s ease}
 .mn-i[hidden]{display:none}
-.mn-i svg{flex:none;width:20px;height:20px;padding:8px;border-radius:12px;fill:none;stroke:var(--accent);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;
+.mn-i svg{flex:none;width:23px;height:23px;padding:10px;border-radius:14px;fill:none;stroke:var(--accent);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;
   background:rgba(var(--accent-rgb),.07);box-sizing:content-box}
 .mn-i svg .d{fill:var(--accent);stroke:none}
 @media (hover:hover){.mn-i:hover{background:rgba(var(--accent-rgb),.05)}}

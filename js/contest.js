@@ -60,6 +60,7 @@
     $("acct-hint").textContent = user.named ? "اكتب الاسم الجديد." : "الاسم الذي سيظهر للآخرين.";
     $("acct-ed").hidden = !user.named || editing;
     $("acct-cancel").hidden = !user.named;
+    $("acct-act").hidden = !!(editing && user.named);   // وقت التعديل: الفورم بس، من غير أزرار تانية
   }
   $("acct-ed").addEventListener("click", () => { editing = true; acct(); $("acct-in").value = user.name || ""; $("acct-in").focus(); });
   $("acct-cancel").addEventListener("click", () => { editing = false; say("acct-msg", ""); acct(); });
@@ -128,7 +129,6 @@
   function paint() {
     if (!ST) return;
     const t = now(), started = t >= ST.start, w = ST.winner;
-    $("ct-rule").textContent = `أول من يبلغ ${num(ST.target)} تسبيحة يُكرَّم في لوحة المكرَّمين.`;
     const needEnter = ST.auth && ST.named && !ST.entered;
     $("ct-wait").hidden = started;                       // العدّ التنازلي لحد بداية الجولة (بعد ما الجولة اللي فاتت اتكسبت)
     $("ct-in").hidden = !(ST.entered && !started);

@@ -37,8 +37,8 @@
 <link rel="preload" href="assets/fonts/HailElasticLight1.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css?v=9">
 <link rel="stylesheet" href="css/challenge.css?v=12">
-<link rel="stylesheet" href="css/contest.css?v=6">
-<link rel="stylesheet" href="css/menu.css?v=6">
+<link rel="stylesheet" href="css/contest.css?v=7">
+<link rel="stylesheet" href="css/menu.css?v=7">
 </head>
 <body>
 <canvas id="bg" aria-hidden="true"></canvas>
@@ -50,13 +50,13 @@
       <div class="acct-card" id="acct-card" hidden>
         <span class="av" aria-hidden="true"><b id="av-l"></b><img id="av-img" alt="" width="56" height="56" referrerpolicy="no-referrer" hidden></span>
         <div class="acct-id"><b class="acct-nm" id="acct-nm"></b><span class="acct-s">حساب جوجل</span></div>
-        <div class="acct-act"><button type="button" id="acct-ed">تعديل الاسم</button><button type="button" id="acct-out">خروج</button></div>
+        <div class="acct-act" id="acct-act"><button type="button" id="acct-ed">تعديل الاسم</button><button type="button" id="acct-out">خروج</button></div>
+        <form class="acct-name" id="acct-name" hidden>
+          <label class="nm-l" id="acct-hint" for="acct-in">الاسم الظاهر</label>
+          <input id="acct-in" maxlength="20" autocomplete="off" placeholder="الاسم الذي سيظهر للآخرين">
+          <div class="nm-act"><button type="submit" class="nm-save">حفظ</button><button type="button" class="nm-cancel" id="acct-cancel" hidden>إلغاء</button></div>
+        </form>
       </div>
-      <form class="acct-name" id="acct-name" hidden>
-        <label class="nm-l" id="acct-hint" for="acct-in">الاسم الظاهر</label>
-        <input id="acct-in" maxlength="20" autocomplete="off" placeholder="الاسم الذي سيظهر للآخرين">
-        <div class="nm-act"><button type="submit" class="nm-save">حفظ</button><button type="button" class="nm-cancel" id="acct-cancel" hidden>إلغاء</button></div>
-      </form>
       <p class="acct-t" id="acct-t"></p>
       <div class="g-btn" id="g-btn"></div>
       <p class="msg" id="acct-msg" role="status"></p>
@@ -144,7 +144,6 @@
 
   <section class="ch ct" id="contest" hidden aria-labelledby="ct-t">
     <h2 id="ct-t">مَكْرُمَةُ ذِي الأَلْف</h2>
-    <p class="ct-rule" id="ct-rule"></p>
     <div class="ct-card">
       <div class="ct-pane" id="ct-wait" hidden>
         <p class="ct-k" id="ct-wk">تبدأ المسابقة بعد</p>
@@ -189,7 +188,6 @@
       <div class="ct-pane" id="ct-hall" hidden>
         <h3 class="ct-h">لوحة المكرَّمين</h3>
         <ol class="ct-fin" id="ct-hall-l"></ol>
-        <p class="ct-note">تُحسب المدة من أول تسبيحة حتى بلوغ الهدف.</p>
       </div>
     </div>
     <p class="msg" id="ct-msg" role="status"></p>
@@ -201,7 +199,7 @@
 <script src="js/bg.js?v=7" defer></script>
 <script src="js/main.js?v=4" defer></script>
 <script src="js/challenge.js?v=12" defer></script>
-<script src="js/contest.js?v=11" defer></script>
+<script src="js/contest.js?v=12" defer></script>
 <script src="js/menu.js?v=4" defer></script>
 </body>
 </html>
