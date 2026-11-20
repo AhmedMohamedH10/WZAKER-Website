@@ -4,7 +4,10 @@
 .env.*
 .wrangler/
 node_modules/
-*.zip
 .DS_Store
 Thumbs.db
 upload.bat
+# ملفات مضغوطة: ما تترفعش
+*.zip
+*.rar
+*.7z
