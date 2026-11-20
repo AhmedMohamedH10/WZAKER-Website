@@ -37,10 +37,32 @@
 <link rel="preload" href="assets/fonts/HailElasticLight1.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css?v=8">
 <link rel="stylesheet" href="css/challenge.css?v=12">
-<link rel="stylesheet" href="css/contest.css?v=4">
+<link rel="stylesheet" href="css/contest.css?v=6">
+<link rel="stylesheet" href="css/menu.css?v=1">
 </head>
 <body>
 <canvas id="bg" aria-hidden="true"></canvas>
+<button class="mn-btn" id="mn-btn" type="button" aria-label="القائمة" aria-expanded="false" aria-controls="mn"><i></i><i></i><i></i></button>
+<div class="mn-ov" id="mn-ov" hidden></div>
+<aside class="mn" id="mn" aria-label="القائمة" aria-hidden="true">
+  <div class="mn-top"><b>القائمة</b><button type="button" class="mn-x" id="mn-x" aria-label="إغلاق"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <section class="mn-sec"><div class="acct" id="acct" hidden>
+      <div class="acct-card" id="acct-card" hidden>
+        <span class="av" aria-hidden="true"><b id="av-l"></b><img id="av-img" alt="" width="56" height="56" referrerpolicy="no-referrer" hidden></span>
+        <div class="acct-id"><b class="acct-nm" id="acct-nm"></b><span class="acct-s">حساب جوجل</span></div>
+        <div class="acct-act"><button type="button" id="acct-ed">تعديل الاسم</button><button type="button" id="acct-out">خروج</button></div>
+      </div>
+      <form class="acct-name" id="acct-name" hidden>
+        <p class="acct-t" id="acct-hint">اختر الاسم الذي سيظهر للآخرين. لا يلزم أن يكون اسمك في جوجل.</p>
+        <div class="who"><input id="acct-in" maxlength="20" autocomplete="off" placeholder="الاسم الذي تودّ إظهاره" aria-label="الاسم الظاهر"><button type="submit">حفظ</button></div>
+      </form>
+      <p class="acct-t" id="acct-t"></p>
+      <div class="g-btn" id="g-btn"></div>
+      <p class="msg" id="acct-msg" role="status"></p>
+    </div>
+</section>
+  <nav class="mn-nav" aria-label="التنقل"><button type="button" class="mn-i" data-go="contest"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 4h9v5.2a4.5 4.5 0 0 1-9 0zM7.5 6H4.8c0 2.6 1 4 2.9 4.4M16.5 6h2.7c0 2.6-1 4-2.9 4.4M12 13.7V17M8.5 20h7M9.5 17h5"/></svg><span>المسابقة الأسبوعية</span></button><button type="button" class="mn-i" data-go="tap"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6"/><circle class="d" cx="12" cy="12" r="2.2"/><path d="M12 3.4v2.2M20.6 12h-2.2M12 20.6v-2.2M3.4 12h2.2"/></svg><span>المسبحة</span></button><button type="button" class="mn-i" data-go="friends"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M2.8 20c.3-3.8 2.8-5.8 6.2-5.8s5.9 2 6.2 5.8"/><circle cx="17.2" cy="9.2" r="2.5"/><path d="M17.4 14.4c2.5.1 4.3 1.8 4.6 4.8"/></svg><span>سبّح مع أصحابك</span></button><button type="button" class="mn-i" data-go="daily"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6"/><circle cx="12" cy="12" r="4.6"/><circle class="d" cx="12" cy="12" r="1.4"/></svg><span>الهدف اليومي</span></button><button type="button" class="mn-i" data-go="board"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20v-6M12 20V5M19 20v-9M3.5 20h17"/></svg><span>الأعلى تسبيحًا</span></button><button type="button" class="mn-i" data-go="download"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 11 12 15.5 16.5 11M5 20h14"/></svg><span>حمّل البرنامج</span></button></nav>
+</aside>
 <main>
   <header class="hero">
     <h1><img src="assets/img/wordmark-v2.webp" alt="وذكر WZAKER" width="912" height="547" fetchpriority="high" decoding="async"><span class="sr"> سبحة عائمة للأذكار على سطح المكتب والأندرويد</span></h1>
@@ -103,20 +125,6 @@
       <button type="button" class="gate-x" id="gate-x">لاحقاً</button>
     </div>
     <p class="hello" id="hello" hidden></p>
-    <div class="acct" id="acct" hidden>
-      <div class="acct-card" id="acct-card" hidden>
-        <span class="av" aria-hidden="true"><b id="av-l"></b><img id="av-img" alt="" width="56" height="56" referrerpolicy="no-referrer" hidden></span>
-        <div class="acct-id"><b class="acct-nm" id="acct-nm"></b><span class="acct-s">حساب جوجل</span></div>
-        <div class="acct-act"><button type="button" id="acct-ed">تعديل الاسم</button><button type="button" id="acct-out">خروج</button></div>
-      </div>
-      <form class="acct-name" id="acct-name" hidden>
-        <p class="acct-t" id="acct-hint">اختر الاسم الذي سيظهر للآخرين. لا يلزم أن يكون اسمك في جوجل.</p>
-        <div class="who"><input id="acct-in" maxlength="20" autocomplete="off" placeholder="الاسم الذي تودّ إظهاره" aria-label="الاسم الظاهر"><button type="submit">حفظ</button></div>
-      </form>
-      <p class="acct-t" id="acct-t"></p>
-      <div class="g-btn" id="g-btn"></div>
-      <p class="msg" id="acct-msg" role="status"></p>
-    </div>
     <div class="tabs"><button type="button" id="t-g" aria-pressed="true">الأعلى</button><button type="button" id="t-r" aria-pressed="false" hidden>غرفتي</button></div>
     <ol class="board" id="board"></ol>
     <p class="msg" id="msg" role="status"></p>
@@ -125,7 +133,7 @@
       <p class="dy-g">هدف اليوم <b id="dy-g">–</b> تسبيحة</p>
       <div class="dy-bar" id="dy-bar" role="progressbar" aria-label="تقدّمك نحو هدف اليوم" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><u id="dy-u"></u></div>
       <p class="dy-me" id="dy-me"></p>
-      <p class="dy-k">أول من بلغوا الهدف اليوم</p>
+      <p class="dy-k" id="dy-k">أول من بلغوا الهدف اليوم</p>
       <ol class="board dy-top" id="dy-top"></ol>
       <p class="dy-note" id="dy-note"></p>
     </div>
@@ -139,9 +147,9 @@
     <div class="ct-card">
       <div class="ct-pane" id="ct-wait" hidden>
         <p class="ct-k" id="ct-wk">تبدأ المسابقة بعد</p>
-        <b class="ct-cd" id="ct-cd" dir="ltr">–</b>
+        <b class="ct-cd" id="ct-cd" dir="rtl">–</b>
         <p class="ct-when" id="ct-when"></p>
-        <p class="ct-k" id="ct-in" hidden>تمّ تأكيد مشاركتك، انتظر انتهاء العدّ التنازلي.</p>
+        <p class="ct-k" id="ct-in" hidden>✓ تمّ تأكيد مشاركتك</p>
       </div>
       <div class="ct-pane" id="ct-login" hidden>
         <p class="ct-k">سجّل الدخول بحساب جوجل لتشارك وتُسجَّل نتيجتك.</p>
@@ -180,7 +188,7 @@
       <div class="ct-pane" id="ct-hall" hidden>
         <h3 class="ct-h">لوحة المكرَّمين</h3>
         <ol class="ct-fin" id="ct-hall-l"></ol>
-        <p class="ct-note">تُحسب المدة على الخادم، من أول تسبيحة وصلت إليه حتى بلوغ الهدف. وتُستبعد أي نتيجة غير حقيقية.</p>
+        <p class="ct-note">تُحسب المدة من أول تسبيحة حتى بلوغ الهدف.</p>
       </div>
     </div>
     <p class="msg" id="ct-msg" role="status"></p>
@@ -192,6 +200,7 @@
 <script src="js/bg.js?v=7" defer></script>
 <script src="js/main.js?v=4" defer></script>
 <script src="js/challenge.js?v=12" defer></script>
-<script src="js/contest.js?v=9" defer></script>
+<script src="js/contest.js?v=10" defer></script>
+<script src="js/menu.js?v=2" defer></script>
 </body>
 </html>

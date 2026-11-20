@@ -27,7 +27,8 @@
     if (!window.google || !google.accounts) return;
     for (const id of ["g-btn", "g-btn2", "g-btn3"]) { $(id).replaceChildren(); google.accounts.id.renderButton($(id), { theme: "filled_black", size: "large", shape: "pill", text: "signin_with", locale: "ar" }); }
   }
-  addEventListener("wz-gate", () => setTimeout(gbtns, 0));   // القائمة كانت مخفية: نرسم الزر بعد ظهورها
+  addEventListener("wz-gate", () => setTimeout(gbtns, 0));
+  addEventListener("wz-menu", () => { if (!user) setTimeout(gbtns, 0); });   // القائمة الجانبية: نرسم زر جوجل بعد ما تبقى ظاهرة (جوجل بيرسمه فاضي لو الحاوية مخفية)   // القائمة كانت مخفية: نرسم الزر بعد ظهورها
   function loadGsi() {
     if (!CID || !authOn || window.google && google.accounts) return;
     const s = document.createElement("script"); s.src = "https://accounts.google.com/gsi/client"; s.async = true;
@@ -49,18 +50,18 @@
     $("acct").hidden = !authOn; $("gate-g").hidden = !authOn || !!user;
     $("gate-t").textContent = authOn ? "سجّل دخولك الآن" : "التسجيل غير متاح حاليًا"; $("gate-s").textContent = authOn ? "ليُحفظ تسبيحك ويظهر اسمك في الترتيب." : "جرّب مرة أخرى بعد قليل.";
     $("g-btn").hidden = !!user; $("acct-card").hidden = !user;
-    $("acct-t").textContent = user ? "" : "سجّل الدخول بحساب جوجل لحفظ تقدّمك والمشاركة في المسابقة.";
+    $("acct-t").textContent = user ? "" : "سجّل الدخول لحفظ تقدّمك.";
     $("acct-name").hidden = !(user && (!user.named || editing));
     if (!user) return;
     $("acct-nm").textContent = user.name || "بلا اسم";
     $("av-l").textContent = [...(user.name || "؟")][0];
     const img = $("av-img"); img.hidden = true;
     if (user.avatar) { img.onload = () => { img.hidden = false; }; img.onerror = () => { img.hidden = true; }; img.src = user.avatar; }
-    $("acct-hint").textContent = user.named ? "اكتب الاسم الجديد الذي تودّ إظهاره." : "اختر الاسم الذي سيظهر للآخرين. لا يلزم أن يكون اسمك في جوجل.";
+    $("acct-hint").textContent = user.named ? "اكتب الاسم الجديد." : "الاسم الذي سيظهر للآخرين.";
     $("acct-ed").hidden = !user.named || editing;
   }
   $("acct-ed").addEventListener("click", () => { editing = true; acct(); $("acct-in").value = user.name || ""; $("acct-in").focus(); });
-  $("ct-name-go").addEventListener("click", () => { $("acct").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" }); setTimeout(() => $("acct-in").focus({ preventScroll: true }), 350); });
+  $("ct-name-go").addEventListener("click", () => { window.WZ_menu ? WZ_menu.open() : 0; setTimeout(() => $("acct-in").focus({ preventScroll: true }), 400); });
   $("acct-name").addEventListener("submit", async e => {
     e.preventDefault(); say("acct-msg", "");
     try { setUser(await api("account/name", { name: $("acct-in").value })); }
@@ -87,10 +88,14 @@
   const isLive = () => ST && ST.auth && ST.named && ST.entered && !ST.done && now() >= ST.start && now() < ST.end;
   const cnt = () => ST ? Math.min(ST.target, ST.me + pending) : 0;
 
+  // عدّاد مبسّط: أيام ← (آخر يوم) ساعات ← (آخر ساعة) دقائق ← (آخر دقيقة) ثواني
+  const unit = (n, one, two, few, many) => n === 1 ? one : n === 2 ? two : AR(n) + " " + (n <= 10 ? few : many);
   function cd(ms) {
-    const t = Math.max(0, Math.ceil(ms / 1000)), d = Math.floor(t / 86400), h = Math.floor(t % 86400 / 3600), m = Math.floor(t % 3600 / 60), s = t % 60;
-    const p = n => AR(String(n).padStart(2, "0"));
-    return (d ? AR(d) + " يوم  " : "") + p(h) + ":" + p(m) + ":" + p(s);
+    const t = Math.max(0, Math.ceil(ms / 1000)), d = Math.floor(t / 86400), h = Math.floor(t / 3600), m = Math.ceil(t / 60);
+    if (d >= 1) return unit(d, "يوم واحد", "يومان", "أيام", "يومًا");
+    if (h >= 1) return unit(h, "ساعة واحدة", "ساعتان", "ساعات", "ساعة");
+    if (t >= 60) return unit(m, "دقيقة واحدة", "دقيقتان", "دقائق", "دقيقة");
+    return unit(Math.max(1, t), "ثانية واحدة", "ثانيتان", "ثوانٍ", "ثانية");
   }
   function paintCount() {
     const c = cnt(); $("cn").textContent = num(c); $("cbar").style.strokeDashoffset = 100 - c / ST.target * 100;
@@ -121,7 +126,7 @@
   function paint() {
     if (!ST) return;
     const t = now(), started = t >= ST.start, w = ST.winner;
-    $("ct-rule").textContent = `أول من يبلغ ${num(ST.target)} تسبيحة يُكرَّم بـ«مَكْرُمَةُ ذِي الأَلْف» ويُخلَّد اسمه في لوحة المكرَّمين. ${ST.manual ? "تنتهي" : `تُقام كل خميس الساعة ${AR(10)}:${AR("00")} مساءً بتوقيت بلدك، وتنتهي`} بفوز أول مسبّح.`;
+    $("ct-rule").textContent = `أول من يبلغ ${num(ST.target)} تسبيحة يُكرَّم في لوحة المكرَّمين.`;
     const needEnter = ST.auth && ST.named && !ST.entered;
     $("ct-wait").hidden = started;                       // العدّ التنازلي لحد بداية الجولة (بعد ما الجولة اللي فاتت اتكسبت)
     $("ct-in").hidden = !(ST.entered && !started);
@@ -137,7 +142,7 @@
       try { $("ct-when").textContent = new Date(ST.start).toLocaleString("ar-EG", { timeZone: ST.tz, dateStyle: "full", timeStyle: "short" }); } catch (e) { $("ct-when").textContent = new Date(ST.start).toLocaleString("ar-EG", { dateStyle: "full", timeStyle: "short" }); }
     }
     if (needEnter) {
-      $("ct-enter-t").textContent = ST.captcha ? "أثبت أنك إنسان ثم ادخل المسابقة." : "أكّد مشاركتك لتبدأ التسبيح في المسابقة.";
+      $("ct-enter-t").textContent = "أثبت أنك إنسان ثم ادخل المسابقة."; $("ct-enter-t").hidden = !ST.captcha;
       if (ST.captcha) { mountTs(); $("ct-go").disabled = !tsTok; } else $("ct-go").disabled = false;
       $("ct-ts").hidden = !ST.captcha;
     }

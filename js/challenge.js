@@ -62,7 +62,7 @@
   // ───── قائمة التسجيل: تظهر عند أول تسبيحة لمن لم يسجّل دخوله أو يكتب اسمه ─────
   let gateDone = false, hinted = false;
   function nudge() {
-    if (S.g) { if (!S.name && !hinted) { hinted = true; say("اختر اسمك في صندوق الحساب ليُحتسب تسبيحك."); } return; }
+    if (S.g) { if (!S.name && !hinted) { hinted = true; say("اختر اسمك من القائمة ليُحتسب تسبيحك."); } return; }
     if (gateDone) return; gateDone = true;
     const g = $("gate"); g.hidden = false; dispatchEvent(new Event("wz-gate"));
     if (!reduce && g.animate) g.animate([{ opacity: 0, transform: "translateY(6px)" }, { opacity: 1, transform: "none" }], { duration: 260, easing: "ease-out" });
@@ -256,12 +256,13 @@
     $("dy-g").textContent = num(D.goal);
     $("dy-u").style.width = pct + "%"; $("dy-bar").setAttribute("aria-valuenow", pct);
     $("dy-me").classList.toggle("done", ok);
-    $("dy-me").textContent = !S.g ? "سجّل دخولك بجوجل ليُحتسب تسبيحك في هدف اليوم." : !S.name ? "اختر اسمك في صندوق الحساب ليُحتسب تسبيحك." : ok ? "ما شاء الله، بلغتَ هدف اليوم." : "تقدّمك اليوم: " + num(p) + " من " + num(D.goal);
-    $("dy-note").textContent = (D.reached > 3 ? "بلغ الهدف اليوم " + who(D.reached) + ". " : "") + (D.end ? "تبقّى على نهاية اليوم " + left(D.end - (Date.now() + D.off)) + "، ثم يتجدّد الهدف وتبدأ القائمة من جديد." : "");
+    $("dy-me").textContent = !S.g ? "سجّل دخولك ليُحتسب تسبيحك." : !S.name ? "اختر اسمك من القائمة ليُحتسب تسبيحك." : ok ? "ما شاء الله، بلغتَ هدف اليوم." : "تقدّمك: " + num(p) + " من " + num(D.goal);
+    $("dy-note").textContent = (D.reached > 3 ? "بلغ الهدف اليوم " + who(D.reached) + ". " : "") + (D.end ? "ينتهي اليوم بعد " + left(D.end - (Date.now() + D.off)) : "");
   }
   function paintDailyTop(top) {
     const ol = $("dy-top"); ol.replaceChildren();
-    if (!top.length) { const li = document.createElement("li"); li.className = "empty"; li.textContent = "لم يبلغ أحد الهدف بعد، كن أول من يبلغه."; ol.append(li); return; }
+    $("dy-k").hidden = ol.hidden = !top.length;               // مفيش قائمة فاضية ولا عنوان لها
+    if (!top.length) return;
     top.forEach((p, i) => {
       const li = document.createElement("li"); if (p.me) li.className = "me";
       for (const [c, t] of [["rk", num(i + 1)], ["nm", p.name], ["ct", hm(p.t)]]) { const s = document.createElement("span"); s.className = c; s.textContent = t; li.append(s); }

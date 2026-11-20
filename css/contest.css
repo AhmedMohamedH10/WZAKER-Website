@@ -23,6 +23,7 @@
 
 /* صندوق الحساب: صورة جوجل (بشكل أيقونة الموقع) + الاسم اللي اللاعب اختاره */
 .acct{display:flex;flex-direction:column;align-items:center;gap:12px;margin:26px auto 0;max-width:420px;width:100%}
+.acct[hidden]{display:none}
 .acct-t{color:var(--dim);font-size:.9rem;line-height:1.7;text-wrap:balance}
 .acct-t:empty{display:none}
 .acct-card{display:flex;align-items:center;gap:14px;width:100%;flex-wrap:wrap;padding:14px 16px;border:1px solid var(--line);border-radius:24px;
