@@ -5,11 +5,18 @@
   if (!$("tap")) return;
   const KEY = "wz_tasbeeh";
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const S = { id: null, name: "", total: 0, pending: 0, room: null };
+  const S = { id: null, name: "", total: 0, pending: 0, room: null, g: false };   // g: داخل بحساب جوجل (الاسم بيتدار من صندوق الحساب)
   try { Object.assign(S, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) {}
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+  const D = { on: false, goal: 0, count: 0, done: false, end: 0, off: 0, reached: 0 };   // الهدف اليومي (من السيرفر)
   const fromUrl = (new URLSearchParams(location.search).get("c") || "").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 10);
   if (fromUrl.length >= 4) { S.room = fromUrl; save(); }
+  const FROM = "wz_from";
+  (() => {
+    const u = new URL(location.href), r = (u.searchParams.get("r") || "").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 10);
+    try { if (r.length === 10 && !localStorage.getItem("wz_vid") && !localStorage.getItem(FROM)) localStorage.setItem(FROM, r); } catch (e) {}
+    if (u.searchParams.has("r")) { u.searchParams.delete("r"); history.replaceState(null, "", u.pathname + u.search + u.hash); }
+  })();
   const num = n => Number(n).toLocaleString("ar-EG");   // أرقام هندية (٤٨٠)
   const rnd = n => [...crypto.getRandomValues(new Uint8Array(n))].map(b => "abcdefghjkmnpqrstuvwxyz23456789"[b % 31]).join("");
   const say = t => { $("msg").textContent = t || ""; };
@@ -40,18 +47,27 @@
   }
   const showCount = () => {
     const n = S.total + S.pending; $("n").textContent = num(n); paintBeads(n);
+    if (D.on) paintDaily();
   };
 
   let view = S.room ? "room" : "global";
   function render() {
     showCount();
-    const has = !!S.name;
-    $("who").hidden = has; $("hello").hidden = !has;
-    if (has) { $("hello").textContent = ""; const b = document.createElement("b"); b.textContent = S.name; $("hello").append("أهلاً ", b); }
+    if (S.g) $("gate").hidden = true; $("hello").hidden = true;
     $("t-r").hidden = !S.room; $("mk").hidden = !!S.room; $("cp").hidden = !S.room; $("lv").hidden = !S.room;
     if (!S.room) view = "global";
     $("t-g").setAttribute("aria-pressed", view === "global"); $("t-r").setAttribute("aria-pressed", view === "room");
   }
+
+  // ───── قائمة التسجيل: تظهر عند أول تسبيحة لمن لم يسجّل دخوله أو يكتب اسمه ─────
+  let gateDone = false, hinted = false;
+  function nudge() {
+    if (S.g) { if (!S.name && !hinted) { hinted = true; say("اختر اسمك في صندوق الحساب ليُحتسب تسبيحك."); } return; }
+    if (gateDone) return; gateDone = true;
+    const g = $("gate"); g.hidden = false; dispatchEvent(new Event("wz-gate"));
+    if (!reduce && g.animate) g.animate([{ opacity: 0, transform: "translateY(6px)" }, { opacity: 1, transform: "none" }], { duration: 260, easing: "ease-out" });
+  }
+  $("gate-x").addEventListener("click", () => { $("gate").hidden = true; });
 
   // ───── التسبيح ─────
   let lastTap = 0, lastCount = 0;
@@ -61,7 +77,7 @@
   $("tap").addEventListener("click", e => {
     const t = performance.now(); if (t - lastCount < MIN_GAP) return; lastCount = t;
     const first = Date.now() - lastTap > 60000; lastTap = Date.now(); if (first) ping();
-    S.pending++; save(); showCount(); wake();
+    S.pending++; save(); showCount(); wake(); nudge();
     const done = (S.total + S.pending) % 33 === 0;
     try { navigator.vibrate && navigator.vibrate(done ? [30, 50, 30] : 8); } catch (_) {}
     if (reduce || !$("tap").animate) return;
@@ -80,30 +96,26 @@
   // ───── المزامنة ─────
   let busy = false;
   async function sync() {
-    if (busy || !S.name || !S.pending) return;
+    if (busy || !S.g || !S.name || !S.pending) return;     // المزامنة لحسابات جوجل بس. من غير دخول العدّ بيفضل على جهازك
     busy = true;
     try {
-      if (!S.id) { const j = await api("join", { name: S.name, seed: S.total }); S.id = j.id; S.total = j.total; }
       const d = Math.min(S.pending, 2000);
       const r = await api("sync", { id: S.id, delta: d, room: S.room });
       S.total = r.total; S.pending -= (typeof r.accepted === "number" ? r.accepted : d); save();
-    } catch (e) { if (e.message === "404") { S.id = null; save(); } }
+      if (r.daily) { const was = D.done; Object.assign(D, { on: true, count: r.daily.count, goal: r.daily.goal, done: r.daily.done }); if (D.done && !was) dailyLoad(); }   // بلغ الهدف الآن: نحدّث قايمة أول 3
+    } catch (e) {
+      if (e.message === "401") say("سجّل دخولك بجوجل ليُحتسب تسبيحك في الترتيب والهدف اليومي.");
+    }
     busy = false; render();
   }
   setInterval(sync, 5000);
+  window.WZ_flush = sync;
+  /* دخول/خروج جوجل (من contest.js): الحساب بياخد مكان الاسم والعدّ المحلي، والتسبيحات اللي لسه ما اتبعتتش بتتبعت على الحساب */
+  addEventListener("wz-login", e => { const d = e.detail || {}; if (!d.id) return; S.id = d.id; S.name = d.name; S.total = d.total; S.g = true; save(); say(""); render(); board(); dailyLoad(); sync(); });
+  addEventListener("wz-logout", () => { S.id = null; S.name = ""; S.total = 0; S.pending = 0; S.g = false; save(); render(); board(); dailyLoad(); });
+  addEventListener("wz-nosession", () => { if (!S.g) return; S.g = false; save(); render(); });   // الجلسة خلصت: الاسم والعدّ يفضلوا، بس المزامنة محتاجة دخول تاني
   addEventListener("pagehide", sync);
-  document.addEventListener("visibilitychange", () => { if (document.hidden) sync(); else { board(); ping(); } });
-
-  // ───── الاسم ─────
-  $("who").addEventListener("submit", async e => {
-    e.preventDefault();
-    const name = $("nm").value.replace(/\s+/g, " ").trim().slice(0, 20);
-    if (name.length < 2) return say("اكتب اسم من حرفين على الأقل");
-    S.name = name; save(); render();
-    try { const j = await api("join", { id: S.id, name, seed: S.total }); S.id = j.id; S.total = j.total; save(); say(""); }
-    catch (e) { say("الاسم اتحفظ على جهازك، وهيظهر في الترتيب أول ما السيرفر يتصل."); }
-    await sync(); render(); board();
-  });
+  document.addEventListener("visibilitychange", () => { if (document.hidden) sync(); else { board(); dailyLoad(); ping(); } });
 
   // ───── لوحة الترتيب ─────
   async function board() {
@@ -112,14 +124,14 @@
       const q = new URLSearchParams(); if (S.id) q.set("id", S.id); if (view === "room" && S.room) q.set("room", S.room);
       const { top } = await api("top?" + q); top.splice(3);
       ol.replaceChildren();
-      if (!top.length) { const li = document.createElement("li"); li.className = "empty"; li.textContent = "لسه مفيش حد، كن أول واحد!"; ol.append(li); return; }
+      if (!top.length) { const li = document.createElement("li"); li.className = "empty"; li.textContent = "لا أحد هنا بعد، كن أول المسبّحين."; ol.append(li); return; }
       top.forEach((p, i) => {
         const li = document.createElement("li"); if (p.me) li.className = "me";
         for (const [c, t] of [["rk", num(i + 1)], ["nm", p.name], ["ct", num(p.c)]]) { const s = document.createElement("span"); s.className = c; s.textContent = t; li.append(s); }
         ol.append(li);
       });
     } catch (e) {
-      ol.replaceChildren(); const li = document.createElement("li"); li.className = "empty"; li.textContent = "الترتيب مش متاح دلوقتي، وعدّك محفوظ عندك."; ol.append(li);
+      ol.replaceChildren(); const li = document.createElement("li"); li.className = "empty"; li.textContent = "تعذّر تحميل الترتيب الآن، وعدّك محفوظ لديك."; ol.append(li);
     }
   }
   for (const [id, v] of [["t-g", "global"], ["t-r", "room"]]) $(id).addEventListener("click", () => { view = v; render(); board(); });
@@ -130,8 +142,8 @@
   // ───── الغرف ─────
   const link = () => location.origin + location.pathname + "?c=" + S.room;
   async function share() {
-    try { if (navigator.share) { await navigator.share({ title: "تحدي التسبيح", text: "تعال نسبّح مع بعض", url: link() }); return; } } catch (e) { if (e.name === "AbortError") return; }
-    try { await navigator.clipboard.writeText(link()); say("اتنسخ رابط التحدي، ابعته لأصحابك."); } catch (e) { say(link()); }
+    try { if (navigator.share) { await navigator.share({ title: "سبّح معنا", text: "هلمّ نسبّح معاً", url: link() }); return; } } catch (e) { if (e.name === "AbortError") return; }
+    try { await navigator.clipboard.writeText(link()); say("نُسخ الرابط، أرسله إلى أصحابك."); } catch (e) { say(link()); }
   }
   $("mk").addEventListener("click", () => {
     S.room = rnd(6);
@@ -146,14 +158,52 @@
     if (!/^[a-z0-9]{10}$/.test(v)) { v = rnd(10); try { localStorage.setItem("wz_vid", v); } catch (e) {} }
     return v;
   })();
+  /* الرقم بيعدّ بسلاسة من القيمة القديمة للجديدة (من غير حركة لو المستخدم مقلّل الحركة) */
+  function countTo(el, to) {
+    to = Number(to) || 0;
+    const from = Number(el.dataset.v);
+    el.dataset.v = to;
+    if (reduce || !isFinite(from) || from === to) { el.textContent = num(to); return; }
+    const t0 = performance.now(), D = 900;
+    const step = t => {
+      const k = Math.min(1, (t - t0) / D), e = 1 - Math.pow(1 - k, 3);
+      el.textContent = num(Math.round(from + (to - from) * e));
+      if (k < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
   async function ping() {
     if (document.hidden) return;
     try {
-      const s = await api("ping", { vid, tap: Date.now() - lastTap < 60000 });
-      $("s-v").textContent = num(s.visitors); $("s-o").textContent = num(s.online); $("s-t").textContent = num(s.tapping);
+      let from = ""; try { from = localStorage.getItem(FROM) || ""; } catch (e) {}
+      const s = await api("ping", { vid, tap: Date.now() - lastTap < 60000, ref: from });
+      countTo($("s-v"), s.visitors); countTo($("s-o"), s.online); countTo($("s-t"), s.tapping);
+      hintStats();
+      refs(s.refs);
     } catch (e) {}
   }
+  /* الوصف ينساب بجانب الرقم: عند اللمس يبقى ثانيتين ثم يُطوى، ومرة واحدة عند أول تحميل للإيحاء بذلك */
+  const STS = [...document.querySelectorAll(".st")];
+  let hinted0 = false;
+  function hintStats() {
+    if (hinted0 || reduce) return; hinted0 = true;
+    STS.forEach((el, i) => { setTimeout(() => el.classList.add("open"), 700 + i * 800); setTimeout(() => el.classList.remove("open"), 1700 + i * 800); });
+  }
+  STS.forEach(el => el.addEventListener("click", () => {
+    const was = el.classList.contains("open");
+    STS.forEach(x => x.classList.remove("open"));
+    if (!was) { el.classList.add("open"); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove("open"), 2600); }
+  }));
   setInterval(ping, 60000);
+
+  // ───── مشاركة الموقع: رابط إحالة خاص بكل زائر، ويُحصى من انضمّ عبره وسبّح ─────
+  const who = n => n === 1 ? "مسبّح واحد" : n === 2 ? "مسبّحان" : n <= 10 ? num(n) + " مسبّحين" : num(n) + " مسبّحاً";
+  function refs(n) { n = Number(n) || 0; $("ref").hidden = !n; if (n) $("ref").textContent = "انضمّ عبر رابطك " + who(n) + "."; }
+  $("sh").addEventListener("click", async () => {
+    const url = location.origin + "/?r=" + vid;
+    try { if (navigator.share) { await navigator.share({ title: "وذكر", text: "وذكر: سبحة عائمة للأذكار على سطح المكتب. سبّح معي.", url }); return; } } catch (e) { if (e.name === "AbortError") return; }
+    try { await navigator.clipboard.writeText(url); say("نُسخ رابط الدعوة، شاركه مع من تحب."); } catch (e) { say(url); }
+  });
 
   // ───── الأذكار تحت الدايرة: ضغطة تبدّل الذكر، وضغطتين تضيف ذكر (أو تعدّل اللي أضافه) ─────
   (() => {
@@ -196,5 +246,41 @@
     paint();
   })();
 
-  render(); board(); sync(); ping();
+  // ───── الهدف اليومي: هدف عشوائي كل يوم. أول 3 يبلغوه بيظهروا لحد نهاية اليوم. العدّ والتوقيت على السيرفر، والمتصفح بيعرض بس ─────
+  const hm = ms => new Date(ms).toLocaleTimeString("ar-EG", { hour: "numeric", minute: "2-digit" });
+  const left = ms => { const m = Math.max(0, Math.ceil(ms / 60000)), h = Math.floor(m / 60); return (h ? num(h) + " س " : "") + num(m % 60) + " د"; };
+  function paintDaily() {
+    $("daily").hidden = !D.on; if (!D.on) return;
+    const reg = S.g && !!S.name, mine = reg ? D.count + S.pending : 0, p = D.goal ? Math.min(mine, D.goal) : 0, ok = D.done || (reg && D.goal > 0 && mine >= D.goal);
+    const pct = D.goal ? Math.round(p / D.goal * 100) : 0;
+    $("dy-g").textContent = num(D.goal);
+    $("dy-u").style.width = pct + "%"; $("dy-bar").setAttribute("aria-valuenow", pct);
+    $("dy-me").classList.toggle("done", ok);
+    $("dy-me").textContent = !S.g ? "سجّل دخولك بجوجل ليُحتسب تسبيحك في هدف اليوم." : !S.name ? "اختر اسمك في صندوق الحساب ليُحتسب تسبيحك." : ok ? "ما شاء الله، بلغتَ هدف اليوم." : "تقدّمك اليوم: " + num(p) + " من " + num(D.goal);
+    $("dy-note").textContent = (D.reached > 3 ? "بلغ الهدف اليوم " + who(D.reached) + ". " : "") + (D.end ? "تبقّى على نهاية اليوم " + left(D.end - (Date.now() + D.off)) + "، ثم يتجدّد الهدف وتبدأ القائمة من جديد." : "");
+  }
+  function paintDailyTop(top) {
+    const ol = $("dy-top"); ol.replaceChildren();
+    if (!top.length) { const li = document.createElement("li"); li.className = "empty"; li.textContent = "لم يبلغ أحد الهدف بعد، كن أول من يبلغه."; ol.append(li); return; }
+    top.forEach((p, i) => {
+      const li = document.createElement("li"); if (p.me) li.className = "me";
+      for (const [c, t] of [["rk", num(i + 1)], ["nm", p.name], ["ct", hm(p.t)]]) { const s = document.createElement("span"); s.className = c; s.textContent = t; li.append(s); }
+      ol.append(li);
+    });
+  }
+  let dseq = 0;
+  async function dailyLoad() {
+    const n = ++dseq;
+    try {
+      const r = await api("daily/state" + (S.g && S.id ? "?id=" + S.id : ""));
+      if (n !== dseq) return;                                  // وصل رد أحدث، نتجاهل ده
+      D.on = !!r.on; if (!D.on) { paintDaily(); return; }
+      Object.assign(D, { goal: r.goal, end: r.end, off: r.now - Date.now(), reached: r.reached });
+      if (!busy) { D.count = r.me.count; D.done = r.me.done; }  // لو فيه مزامنة شغالة دلوقتي، رقمها هو الأحدث
+      paintDailyTop(r.top); paintDaily();
+    } catch (e) {}                                             // فشل الاتصال: بنسيب اللي معروض زي ما هو
+  }
+  setInterval(() => { if (seen && !document.hidden) dailyLoad(); }, 10000);
+
+  render(); board(); sync(); ping(); dailyLoad();
 })();

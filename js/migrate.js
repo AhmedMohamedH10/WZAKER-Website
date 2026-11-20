@@ -4,7 +4,6 @@
   const get = k => { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } };
   const set = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
   const json = s => { try { return JSON.parse(s || "{}") || {}; } catch (e) { return {}; } };
-  const sum = o => (+o.total || 0) + (+o.pending || 0);
 
   if (OLD.includes(location.hostname)) {            // عنوان قديم: ابعت الحساب مع التحويل
     const d = { s: get("wz_tasbeeh"), v: get("wz_vid") };
@@ -16,8 +15,10 @@
   if (!m) return;
   try {
     const d = json(decodeURIComponent(m[1])), inc = json(d.s), cur = json(get("wz_tasbeeh"));
-    if (inc.id && (!cur.id || sum(inc) >= sum(cur))) set("wz_tasbeeh", d.s);   // الأكبر عدّاً هو اللي يفضل
-    if (/^[a-z0-9]{10}$/.test(d.v || "")) set("wz_vid", d.v);
+    const ID = /^[a-z0-9]{10}$/, num = (x, mx) => Math.min(mx, Math.max(0, Math.floor(+x) || 0));
+    // الرابط ممكن يكون مصنوع من حد تاني: بنقبل بس لو مفيش حساب عندك، ونكتب قيم متحقَّق منها بدل ما ننسخ الـ JSON زي ما هو
+    if (ID.test(inc.id || "") && !cur.id) set("wz_tasbeeh", JSON.stringify({ id: inc.id, name: String(inc.name || "").slice(0, 20), total: num(inc.total, 1e7), pending: num(inc.pending, 1e5) }));
+    if (ID.test(d.v || "") && !get("wz_vid")) set("wz_vid", d.v);
   } catch (e) {}
   try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
 })();

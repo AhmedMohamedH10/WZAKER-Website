@@ -1,0 +1,62 @@
+/* قسم المسابقة */
+.ct-rule{margin:-1vh 0 3vh;color:var(--dim);font-size:1rem;text-wrap:balance}
+.ct-card{border:1px solid var(--line);border-radius:28px;padding:26px 18px;
+  background:radial-gradient(120% 80% at 50% 0%,rgba(var(--accent-rgb),.09),rgba(var(--accent-rgb),.02) 70%);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.ct-pane{display:flex;flex-direction:column;align-items:center;gap:12px}
+.ct-pane:not([hidden]) ~ .ct-pane:not([hidden]){margin-top:22px;padding-top:22px;border-top:1px solid var(--line)}
+.ct-k{color:var(--dim);font-size:.95rem;line-height:1.7;text-wrap:balance}
+.ct-cd{font-weight:300;font-size:clamp(2rem,9vw,2.8rem);line-height:1.2;color:var(--accent);font-variant-numeric:tabular-nums;letter-spacing:.04em;text-shadow:0 0 28px rgba(var(--accent-rgb),.35)}
+.ct-when{color:var(--dim);font-size:.85rem}
+.ct-win{font-family:var(--font-first);font-size:1.35rem;color:var(--text);line-height:1.8;text-wrap:balance}
+.ct-claim{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%}
+.ct-claim .who{margin-top:4px;width:100%}
+.ct-top{list-style:none;padding:0;margin:8px 0 0;width:100%;max-width:340px}
+.ct-top li{display:grid;grid-template-columns:2em 1fr auto;gap:8px;padding:7px 4px;text-align:start;border-bottom:1px solid var(--line)}
+.ct-top li:last-child{border-bottom:0}
+.ct-top .rk{color:var(--dim)} .ct-top .ct{color:var(--accent);font-variant-numeric:tabular-nums}
+.ct-top .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* دايرة المسابقة: نفس دايرة التسبيح، وحلقة التقدّم بتتملي لحد الهدف */
+.ctap .beads .prog{fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;
+  transform:rotate(-90deg);transform-origin:center;transition:stroke-dashoffset .35s ease;filter:drop-shadow(0 0 5px rgba(var(--accent-rgb),.7))}
+.ctap .tap-n{font-size:3rem}
+
+/* صندوق الحساب: صورة جوجل (بشكل أيقونة الموقع) + الاسم اللي اللاعب اختاره */
+.acct{display:flex;flex-direction:column;align-items:center;gap:12px;margin:26px auto 0;max-width:420px;width:100%}
+.acct-t{color:var(--dim);font-size:.9rem;line-height:1.7;text-wrap:balance}
+.acct-t:empty{display:none}
+.acct-card{display:flex;align-items:center;gap:14px;width:100%;flex-wrap:wrap;padding:14px 16px;border:1px solid var(--line);border-radius:24px;
+  background:radial-gradient(120% 90% at 50% 0%,rgba(var(--accent-rgb),.08),rgba(var(--accent-rgb),.02) 75%)}
+.acct-card[hidden]{display:none}
+.av{position:relative;flex:none;width:56px;height:56px;border-radius:22.5%;overflow:hidden;display:grid;place-items:center;
+  background:rgba(var(--accent-rgb),.1);box-shadow:0 0 0 1px rgba(var(--accent-rgb),.3),0 8px 24px rgba(var(--accent-rgb),.16)}
+.av b{font-family:var(--font-first);font-weight:400;font-size:1.5rem;color:var(--accent);line-height:1}
+.av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.av img[hidden]{display:none}
+.acct-id{flex:1;min-width:0;display:flex;flex-direction:column;text-align:start;line-height:1.5}
+.acct-nm{font-size:1.15rem;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acct-s{font-size:.8rem;color:var(--dim)}
+.acct-act{display:flex;gap:8px;flex:none}
+.acct-act button{padding:6px 14px !important;font-size:.85rem}
+.acct-name{width:100%} .acct-name .who{margin-top:8px;max-width:none}
+.g-btn{min-height:44px;display:flex;justify-content:center;color-scheme:light}
+.g-btn[hidden]{display:none}
+@media (max-width:420px){.acct-act{width:100%;justify-content:flex-end}}
+
+/* اللي وصلوا للهدف: الترتيب بالأسبق، وجنب كل واحد وقته */
+.ct-h{font-family:var(--font-first);font-weight:400;font-size:1.15rem;color:var(--text);margin-top:6px}
+.ct-fin{list-style:none;padding:0;margin:0;width:100%;border:1px solid var(--line);border-radius:20px;overflow:hidden;background:rgba(var(--accent-rgb),.025)}
+.ct-fin li{display:grid;grid-template-columns:2em 1fr auto;align-items:center;gap:8px;padding:10px 16px;text-align:start;border-bottom:1px solid var(--line)}
+.ct-fin li:last-child{border-bottom:0}
+.ct-fin .rk{color:var(--dim)} .ct-fin li.first .rk{color:var(--accent)}
+.ct-fin .nm{display:flex;flex-direction:column;min-width:0;line-height:1.5}
+.ct-fin .nm b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ct-fin .sub{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.78rem;color:var(--dim)}
+.ct-fin .sub .ok{color:var(--accent)}
+.ct-fin .ct{color:var(--accent);font-variant-numeric:tabular-nums;font-size:1.05rem;white-space:nowrap}
+.ct-fin li.me{background:rgba(var(--accent-rgb),.08)}
+.ct-note{color:var(--dim);font-size:.8rem;line-height:1.7;text-wrap:balance}
+.ct-ts{min-height:0}.ct-ts[hidden]{display:none}
+.ct-pane>button{font:inherit;color:var(--accent);background:transparent;border:1px solid rgba(var(--accent-rgb),.35);border-radius:999px;padding:9px 22px;cursor:pointer;transition:background .3s ease,border-color .3s ease}
+.ct-pane>button:disabled{opacity:.4;cursor:default}
+@media (hover:hover){.ct-pane>button:not(:disabled):hover{background:rgba(var(--accent-rgb),.08);border-color:var(--accent)}}

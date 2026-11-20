@@ -7,3 +7,9 @@ const MEDIAFIRE = { pc: "https://www.mediafire.com/file/k0k2m025igwyrsw/WZAKER+3
 
 /* ريبو الأندرويد العام (فيه WZAKER.apk في Releases) */
 const ANDROID_REPO = "AhmedMohamedH10/wzaker-app-release";
+
+/* دخول جوجل: الـ Client ID بتاع Google Cloud (بيبان للناس عادي، مش سر). سيبه "" لو لسه ما اتفعّلش وزرار الدخول والمسابقة مش هيظهروا */
+const GOOGLE_CLIENT_ID = "";
+
+/* Cloudflare Turnstile (اختياري، بيتأكد إن اللي داخل المسابقة إنسان). الـ Site Key بيبان للناس عادي. سيبه "" لو مش عاوزه */
+const TURNSTILE_SITEKEY = "";

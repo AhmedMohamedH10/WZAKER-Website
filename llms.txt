@@ -1,0 +1,18 @@
+# وذكر (WZAKER)
+
+> سبحة إلكترونية عائمة للأذكار والتسبيح على سطح مكتب ويندوز ولينكس وعلى أندرويد، مع تذكير بالأذكار ومواقيت الصلاة. مجانية بالكامل.
+
+WZAKER is a free floating digital tasbih (prayer beads) and adhkar reminder app for Windows, Linux and Android. The site is a single Arabic (RTL) page.
+
+## الصفحات
+- [الصفحة الرئيسية](https://wzaker.site/): تحميل التطبيق، والتسبيح الجماعي، والهدف اليومي، ومسابقة «مَكْرُمَةُ ذِي الأَلْف» الأسبوعية (كل خميس 10:00 مساءً بتوقيت بلد الزائر).
+- [عن وذكر وسياسة الخصوصية](https://wzaker.site/about): تعريف بالتطبيق، وما يُحفظ وما لا يُحفظ، وكيف تطلب حذف بياناتك.
+
+## التحميل
+- [إصدارات التطبيق على GitHub](https://github.com/AhmedMohamedH10/WZAKER/releases): ويندوز ولينكس.
+- [إصدار أندرويد](https://github.com/AhmedMohamedH10/wzaker-app-release/releases): ملف WZAKER.apk.
+
+## معلومات
+- المطوّر: أحمد بن محمد آلـ حسين.
+- اللغة: العربية.
+- الخصوصية: التسبيح الجماعي يعمل بمعرّف عشوائي للزائر. الدخول بحساب جوجل اختياري، ويُحفظ معه الاسم الذي تختاره وصورة الحساب والبريد (البريد يراه مالك الموقع فقط). التفاصيل في https://wzaker.site/about#privacy

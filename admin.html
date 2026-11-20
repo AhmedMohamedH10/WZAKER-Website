@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>لوحة التحكم | وذكر</title>
+<link rel="icon" href="assets/img/favicon-v3.png">
+<link rel="stylesheet" href="css/style.css?v=8">
+<link rel="stylesheet" href="css/admin.css?v=10">
+</head>
+<body>
+<main class="ad">
+
+  <form id="ad-login" class="lg" autocomplete="off">
+    <div class="lg-stage"><img src="assets/img/logo-v2.webp" alt="وذكر" width="140" height="140"></div>
+    <h1 class="fw">لوحة التحكم</h1>
+    <input id="ad-key" type="password" placeholder="مفتاح الدخول" aria-label="مفتاح الدخول" autocomplete="off" required>
+    <button type="submit" class="btn pri">دخول</button>
+    <p id="ad-err" class="lg-err" role="alert"></p>
+  </form>
+
+  <div id="ad-app" hidden>
+    <header class="hd">
+      <div class="hd-b"><img class="mk" src="assets/img/logo-v2.webp" alt="" width="80" height="80"><img class="wm" src="assets/img/wordmark-v2.webp" alt="وذكر" height="64"><span class="ttl">لوحة التحكم</span></div>
+      <div class="hd-a">
+        <button id="ad-refresh" class="ic" type="button" aria-label="تحديث" title="تحديث"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
+        <button id="ad-out" class="ic" type="button" aria-label="خروج" title="خروج"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 8l-4 4 4 4M6 12h10"/></svg></button>
+      </div>
+    </header>
+
+    <nav class="tabs" role="tablist">
+      <button class="tab on" role="tab" data-t="w" type="button"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg><span>الفائزون</span></button>
+      <button class="tab" role="tab" data-t="c" type="button"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg><span>المسابقة</span></button>
+      <button class="tab" role="tab" data-t="d" type="button"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></svg><span>اليومي</span></button>
+      <button class="tab" role="tab" data-t="p" type="button"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 4.5a3.5 3.5 0 0 1 0 7M18 14.5c2.2.7 3.5 2.6 3.5 5.5"/></svg><span>المتسابقون</span></button>
+      <button class="tab" role="tab" data-t="s" type="button"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg><span>الإحصائيات</span></button>
+    </nav>
+
+    <section id="p-w" class="pane">
+      <div id="ad-wl" class="wl"></div>
+    </section>
+
+    <section id="p-c" class="pane" hidden>
+      <div class="hero" id="ad-hero">
+        <div class="ring" id="ad-ring">
+          <svg viewBox="0 0 220 220" aria-hidden="true"></svg>
+          <div class="rc"><small id="ad-rk"></small><b id="ad-rv"></b></div>
+        </div>
+        <div id="ad-rs" class="rs"></div>
+        <dl class="facts"><div><dt>المشاركون</dt><dd id="ad-f1">0</dd></div><div><dt>النوع</dt><dd id="ad-f2"></dd></div></dl>
+      </div>
+
+      <div class="stl">
+        <select id="ad-rsel" aria-label="الجولة" hidden></select>
+        <div id="ad-sl" class="ml"></div>
+      </div>
+
+      <p id="ad-warn" class="warn" hidden>نفّذ migrate-v7.sql أولًا.</p>
+      <div id="ad-ctl">
+        <div class="grp">
+          <label class="fld"><span>الهدف</span><input id="ad-t" type="number" inputmode="numeric" min="10" max="100000" value="1000"></label>
+          <label class="fld"><span>الموعد</span><input id="ad-at" type="datetime-local"></label>
+          <div class="bts"><button id="ad-now" class="btn pri" type="button">ابدأ الآن</button><button id="ad-sched" class="btn" type="button">جدولة</button></div>
+        </div>
+        <div class="grp row">
+          <div><b>الجولات الأسبوعية</b><small>كل خميس</small></div>
+          <button id="ad-wk" class="sw" role="switch" aria-checked="true" aria-label="الجولات الأسبوعية" type="button"><i></i></button>
+        </div>
+        <div id="ad-ml" class="ml"></div>
+      </div>
+    </section>
+
+    <section id="p-d" class="pane" hidden>
+      <p id="ad-dwarn" class="warn" hidden>نفّذ migrate-v8.sql أولًا.</p>
+      <div id="ad-dbody">
+        <div class="dg" id="ad-dg">
+          <small>هدف اليوم</small><b id="ad-dv">—</b><span id="ad-dm" class="chip"></span>
+          <dl class="facts"><div><dt>بلغوا الهدف</dt><dd id="ad-d1">0</dd></div><div><dt>مشاركون اليوم</dt><dd id="ad-d2">0</dd></div><div><dt>ينتهي اليوم بعد</dt><dd id="ad-d3">—</dd></div></dl>
+        </div>
+        <div class="grp">
+          <label class="fld"><span>تحديد هدف اليوم</span><input id="ad-dt" type="number" inputmode="numeric" min="10" max="100000"></label>
+          <div class="bts"><button id="ad-dset" class="btn pri" type="button">تطبيق</button><button id="ad-dre" class="btn" type="button">عشوائي جديد</button></div>
+          <p class="hint">من وصلوا للهدف قبل التغيير تبقى أسماؤهم. لو خفّضت الهدف، من عدّاده فوق الجديد يُسجَّل وصوله بوقت آخر تسبيحة له.</p>
+        </div>
+        <div class="grp">
+          <label class="fld h"><span>أقل هدف عشوائي</span><input id="ad-dmin" type="number" inputmode="numeric" min="10" max="100000"></label>
+          <label class="fld h"><span>أعلى هدف عشوائي</span><input id="ad-dmax" type="number" inputmode="numeric" min="10" max="100000"></label>
+          <div class="bts one"><button id="ad-dsave" class="btn" type="button">حفظ المدى</button></div>
+          <p class="hint">المدى يُطبَّق على الهدف العشوائي القادم (كل يوم جديد، أو زر «عشوائي جديد»)، ولا يغيّر هدف اليوم الحالي.</p>
+        </div>
+        <div class="grp row">
+          <div><b>الهدف اليومي</b><small>ظاهر للزوار في الصفحة الرئيسية</small></div>
+          <button id="ad-don" class="sw" role="switch" aria-checked="true" aria-label="الهدف اليومي" type="button"><i></i></button>
+        </div>
+        <h3 class="dh">من بلغوا هدف اليوم</h3>
+        <div id="ad-dl" class="ml"></div>
+      </div>
+    </section>
+
+    <section id="p-p" class="pane" hidden>
+      <div class="tb">
+        <input id="ad-q" type="search" placeholder="ابحث بالاسم أو البريد" aria-label="بحث" autocomplete="off">
+        <button id="ad-bf" class="btn sm" type="button" aria-pressed="false">المحظورون</button>
+      </div>
+      <div id="ad-pl" class="ml"></div>
+    </section>
+
+    <section id="p-s" class="pane" hidden>
+      <div id="ad-sg" class="sg"></div>
+    </section>
+  </div>
+</main>
+<div id="ad-toast" class="toast" role="status" aria-live="polite"></div>
+<script src="js/admin.js?v=10"></script>
+</body>
+</html>

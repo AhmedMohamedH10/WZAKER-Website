@@ -1,7 +1,7 @@
-@font-face{font-family:'Hail Elastic Light 1';src:url('../assets/fonts/HailElasticLight1.ttf') format('truetype');font-weight:100 900;font-display:swap}
-@font-face{font-family:'Hail Elastic Plain';src:url('../assets/fonts/HailElasticLight.ttf') format('truetype');font-weight:100 900;font-display:swap}
-@font-face{font-family:'WZ Num';src:url('../assets/fonts/Inter-VariableFont_opsz_wght.ttf') format('truetype');font-weight:100 900;font-display:swap;unicode-range:U+0030-0039,U+002E}
-@font-face{font-family:'Inter';src:url('../assets/fonts/Inter-VariableFont_opsz_wght.ttf') format('truetype');font-weight:100 900;font-display:swap;unicode-range:U+0041-005A,U+0061-007A}
+@font-face{font-family:'Hail Elastic Light 1';src:url('../assets/fonts/HailElasticLight1.woff2') format('woff2');font-weight:100 900;font-display:swap}
+@font-face{font-family:'Hail Elastic Plain';src:url('../assets/fonts/HailElasticLight.woff2') format('woff2');font-weight:100 900;font-display:swap}
+@font-face{font-family:'WZ Num';src:url('../assets/fonts/Inter-VariableFont_opsz_wght.woff2') format('woff2');font-weight:100 900;font-display:swap;unicode-range:U+0030-0039,U+002E}
+@font-face{font-family:'Inter';src:url('../assets/fonts/Inter-VariableFont_opsz_wght.woff2') format('woff2');font-weight:100 900;font-display:swap;unicode-range:U+0041-005A,U+0061-007A}
 
 :root{
   --bg:#090f0b; --accent:#3dffa3; --accent-rgb:61,255,163;
@@ -54,7 +54,8 @@ h2{font-family:var(--font-first);font-weight:400;font-size:1.5rem;text-align:cen
   transition:transform .45s ease,border-color .45s ease,box-shadow .45s ease,background .45s ease}
 .disc::before{content:"";position:absolute;inset:0;border-radius:50%;border:1px solid rgba(var(--accent-rgb),.5);
   opacity:0;transform:scale(1);transition:transform .7s ease,opacity .7s ease}
-.disc svg{width:46px;height:46px;fill:none;stroke:var(--accent);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;
+.disc svg .d,.mf-item svg .d{fill:var(--accent);stroke:none}
+.disc svg{width:50px;height:50px;fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;
   transition:transform .45s ease}
 .name{font-size:1.1rem}
 .meta{font-size:.85rem;color:var(--dim);min-height:1.5em;direction:ltr;text-align:center}
@@ -99,6 +100,9 @@ button.dl{background:none;border:0;padding:0;font:inherit;cursor:pointer}
 .soon p{color:var(--dim);margin-top:6px}
 footer{text-align:center;color:var(--dim);font-size:.85rem;padding:0 0 5vh}
 footer a{color:var(--accent);text-decoration:none}
+footer .fn{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 18px;margin-bottom:10px}
+footer .fn a{color:var(--dim)}
+footer .fn a:hover,footer .fn a:focus-visible{color:var(--accent)}
 footer .by{margin-top:4px;font-family:var(--font-first);font-size:.9rem}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
@@ -115,4 +119,22 @@ footer .by{margin-top:4px;font-family:var(--font-first);font-size:.9rem}
   .mf-item{padding:12px 16px;font-size:1rem;gap:12px;border-radius:18px}
   .mf-item svg{width:22px;height:22px}
   .mf-item .go{width:18px;height:18px}
+}
+
+/* قايمة مديا فاير: خلفية معتمة علشان زخارف الخلفية ما تبانش من ورا الكلام */
+.mf{background:linear-gradient(rgba(var(--accent-rgb),.04),rgba(var(--accent-rgb),.04)),rgba(9,15,11,.94);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+
+
+/* بلور خفيف ورا الدواير واللوحات علشان الزخارف ما تتخانقش مع الأيقونات */
+.disc{-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.board{-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+
+/* الموبايل: لما زخرفة تعدّي ورا الكلام، طبقة زجاجية ناعمة (بلور + تعتيم خفيف بحواف بتدوب) بتعزل الكلام عن الخلفية */
+@media (max-width:760px),(pointer:coarse){
+  .verse,.tag,h2,.app-name,.app-ver,.dk-cur,.hello{position:relative;isolation:isolate}
+  .verse::before,.tag::before,h2::before,.app-name::before,.app-ver::before,.dk-cur::before,.hello::before{
+    content:"";position:absolute;inset:-8px -22px;z-index:-1;pointer-events:none;border-radius:32px;
+    background:rgba(9,15,11,.34);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);
+    -webkit-mask-image:radial-gradient(ellipse closest-side,#000 55%,transparent);mask-image:radial-gradient(ellipse closest-side,#000 55%,transparent)}
+  .dl .name{position:relative}
 }
