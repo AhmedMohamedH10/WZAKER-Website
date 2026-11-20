@@ -1,0 +1,10 @@
+# أسرار وملفات محلية: ما تترفعش على GitHub أبداً
+.dev.vars
+.env
+.env.*
+.wrangler/
+node_modules/
+*.zip
+.DS_Store
+Thumbs.db
+upload.bat
