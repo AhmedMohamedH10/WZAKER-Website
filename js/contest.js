@@ -25,7 +25,13 @@
   // ───── دخول جوجل ─────
   function gbtns() {
     if (!window.google || !google.accounts) return;
-    for (const id of ["g-btn", "g-btn2", "g-btn3"]) { $(id).replaceChildren(); google.accounts.id.renderButton($(id), { theme: "filled_black", size: "large", shape: "pill", text: "signin_with", locale: "ar" }); }
+    for (const id of ["g-btn", "g-btn2", "g-btn3"]) {
+      const c = $(id); c.replaceChildren(); c.classList.remove("ready");
+      const hit = document.createElement("div"); hit.className = "g-hit"; c.append(hit);   // زر جوجل الحقيقي شفاف فوق الزر المرسوم بطابع الموقع
+      const w = Math.round(Math.min(400, Math.max(200, c.offsetWidth || 260)));
+      google.accounts.id.renderButton(hit, { theme: "filled_black", size: "large", shape: "pill", text: "signin_with", locale: "ar", width: w });
+      c.classList.add("ready");
+    }
   }
   addEventListener("wz-gate", () => setTimeout(gbtns, 0));
   addEventListener("wz-menu", () => { if (!user) setTimeout(gbtns, 0); });   // القائمة الجانبية: نرسم زر جوجل بعد ما تبقى ظاهرة (جوجل بيرسمه فاضي لو الحاوية مخفية)   // القائمة كانت مخفية: نرسم الزر بعد ظهورها
