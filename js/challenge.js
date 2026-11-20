@@ -255,9 +255,12 @@
     const pct = D.goal ? Math.round(p / D.goal * 100) : 0;
     $("dy-g").textContent = num(D.goal);
     $("dy-u").style.width = (p > 0 ? Math.max(pct, 2) : 0) + "%"; $("dy-bar").setAttribute("aria-valuenow", pct);
+    $("dy-pc").textContent = reg ? num(pct) + "٪" : "";
+    $("dy-t1").textContent = reg ? num(p) : "–"; $("dy-t2").textContent = reg ? num(Math.max(0, D.goal - p)) : "–";
+    $("dy-t3").textContent = D.end ? left(D.end - (Date.now() + D.off)) : "–";
     $("dy-me").classList.toggle("done", ok);
-    $("dy-me").textContent = !S.g ? "سجّل دخولك ليُحتسب تسبيحك." : !S.name ? "اختر اسمك من القائمة ليُحتسب تسبيحك." : ok ? "ما شاء الله، بلغتَ هدف اليوم." : "تقدّمك: " + num(p) + " من " + num(D.goal);
-    $("dy-note").textContent = (D.reached > 3 ? "بلغ الهدف اليوم " + who(D.reached) + ". " : "") + (D.end ? "ينتهي اليوم بعد " + left(D.end - (Date.now() + D.off)) : "");
+    $("dy-me").textContent = !S.g ? "سجّل دخولك ليُحتسب تسبيحك." : !S.name ? "اختر اسمك من القائمة ليُحتسب تسبيحك." : ok ? "ما شاء الله، بلغتَ هدف اليوم." : "";
+    $("dy-note").textContent = D.reached > 3 ? "بلغ الهدف اليوم " + who(D.reached) + "." : "";
   }
   function paintDailyTop(top) {
     const ol = $("dy-top"); ol.replaceChildren();

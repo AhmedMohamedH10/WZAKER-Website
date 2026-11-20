@@ -10,7 +10,7 @@
     contest: ["#contest .ct-card", "#contest"],
     tap: ["#tap", "#tap"],
     friends: ["#mk", "#mk"],
-    daily: ["#daily", "#daily"],
+    daily: ["#daily .dy-card", "#daily"],
     board: ["#board", "#board"],
     download: ["#download .downloads", "#download"],
   };
@@ -41,7 +41,7 @@
     const el = q(T[key][0]); if (!el) return;
     close(false);
     setTimeout(() => {
-      el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: key === "daily" || key === "board" ? "start" : "center" });
+      el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: key === "board" ? "start" : "center" });
       setTimeout(() => point(el), reduce ? 0 : 450);
     }, 200);
   }

@@ -141,7 +141,8 @@
     $("ct-hall").hidden = !(ST.hall && ST.hall.length);
     if (!$("ct-wait").hidden) {
       $("ct-cd").textContent = cd(ST.start - t);
-      try { $("ct-when").textContent = new Date(ST.start).toLocaleString("ar-EG", { timeZone: ST.tz, dateStyle: "full", timeStyle: "short" }); } catch (e) { $("ct-when").textContent = new Date(ST.start).toLocaleString("ar-EG", { dateStyle: "full", timeStyle: "short" }); }
+      const at = o => { try { return new Date(ST.start).toLocaleString("ar-EG", Object.assign({ timeZone: ST.tz }, o)); } catch (e) { return new Date(ST.start).toLocaleString("ar-EG", o); } };
+      $("ct-day").textContent = at({ weekday: "long", day: "numeric", month: "long" }); $("ct-hr").textContent = at({ hour: "numeric", minute: "2-digit" });
     }
     if (needEnter) {
       $("ct-enter-t").textContent = "أثبت أنك إنسان ثم ادخل المسابقة."; $("ct-enter-t").hidden = !ST.captcha;
