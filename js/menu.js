@@ -11,7 +11,7 @@
     tap: ["#tap", "#tap"],
     friends: ["#mk", "#mk"],
     daily: ["#daily .dy-card", "#daily"],
-    board: ["#board", "#board"],
+    board: ["#lb", "#board"],
     download: ["#download .downloads", "#download"],
   };
   const q = s => document.querySelector(s);

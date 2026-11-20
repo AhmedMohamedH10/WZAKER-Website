@@ -20,6 +20,7 @@
   const num = n => Number(n).toLocaleString("ar-EG");   // أرقام هندية (٤٨٠)
   const rnd = n => [...crypto.getRandomValues(new Uint8Array(n))].map(b => "abcdefghjkmnpqrstuvwxyz23456789"[b % 31]).join("");
   const say = t => { $("msg").textContent = t || ""; };
+  const sayA = t => { $("act-msg").textContent = t || ""; };   // رسائل الأزرار اللي تحت (نسخ الرابط) بتظهر جنبها
 
   async function api(path, body) {
     const r = await fetch("/api/" + path, body
@@ -143,14 +144,14 @@
   const link = () => location.origin + location.pathname + "?c=" + S.room;
   async function share() {
     try { if (navigator.share) { await navigator.share({ title: "سبّح معنا", text: "هلمّ نسبّح معاً", url: link() }); return; } } catch (e) { if (e.name === "AbortError") return; }
-    try { await navigator.clipboard.writeText(link()); say("نُسخ الرابط، أرسله إلى أصحابك."); } catch (e) { say(link()); }
+    try { await navigator.clipboard.writeText(link()); sayA("نُسخ الرابط، أرسله إلى أصحابك."); } catch (e) { sayA(link()); }
   }
   $("mk").addEventListener("click", () => {
     S.room = rnd(6);
     save(); view = "room"; history.replaceState(null, "", "?c=" + S.room); render(); board(); share();
   });
   $("cp").addEventListener("click", share);
-  $("lv").addEventListener("click", () => { S.room = null; save(); view = "global"; history.replaceState(null, "", location.pathname); render(); board(); say(""); });
+  $("lv").addEventListener("click", () => { S.room = null; save(); view = "global"; history.replaceState(null, "", location.pathname); render(); board(); sayA(""); });
 
   // ───── الحضور والإحصائيات (زائر مجهول بمعرّف عشوائي، من غير أي بيانات شخصية) ─────
   const vid = (() => {
@@ -202,7 +203,7 @@
   $("sh").addEventListener("click", async () => {
     const url = location.origin + "/?r=" + vid;
     try { if (navigator.share) { await navigator.share({ title: "وذكر", text: "وذكر: سبحة عائمة للأذكار على سطح المكتب. سبّح معي.", url }); return; } } catch (e) { if (e.name === "AbortError") return; }
-    try { await navigator.clipboard.writeText(url); say("نُسخ رابط الدعوة، شاركه مع من تحب."); } catch (e) { say(url); }
+    try { await navigator.clipboard.writeText(url); sayA("نُسخ رابط الدعوة، شاركه مع من تحب."); } catch (e) { sayA(url); }
   });
 
   // ───── الأذكار تحت الدايرة: ضغطة تبدّل الذكر، وضغطتين تضيف ذكر (أو تعدّل اللي أضافه) ─────
