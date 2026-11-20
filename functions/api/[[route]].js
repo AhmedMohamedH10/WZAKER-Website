@@ -552,8 +552,8 @@ export async function onRequest({ request, env, params, waitUntil }) {
     } else if (route === "top") {                   // لوحة الترتيب: أعلى 3 فقط (عامة أو غرفة)
       const r = okRoom(url.searchParams.get("room")), me = okId(url.searchParams.get("id")) || "";
       const q = r
-        ? db.prepare("SELECT p.name AS name, s.count AS c, (p.id=?) AS me FROM room_scores s JOIN players p ON p.id=s.id WHERE s.room=? AND p.name<>'' AND p.banned=0 AND p.google_sub IS NOT NULL ORDER BY s.count DESC LIMIT 3").bind(me, r)
-        : db.prepare("SELECT name, total AS c, (id=?) AS me FROM players WHERE total>0 AND name<>'' AND banned=0 AND google_sub IS NOT NULL ORDER BY total DESC LIMIT 3").bind(me);
+        ? db.prepare("SELECT p.name AS name, s.count AS c, (p.id=?) AS me FROM room_scores s JOIN players p ON p.id=s.id WHERE s.room=? AND p.name<>'' AND p.banned=0 ORDER BY s.count DESC LIMIT 3").bind(me, r)
+        : db.prepare("SELECT name, total AS c, (id=?) AS me FROM players WHERE total>0 AND name<>'' AND banned=0 ORDER BY total DESC LIMIT 3").bind(me);
       return J({ top: (await q.all()).results });
     }
     return J({ error: "not-found" }, 404);
