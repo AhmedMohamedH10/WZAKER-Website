@@ -9,7 +9,6 @@ const MEDIAFIRE = { pc: "https://www.mediafire.com/file/k0k2m025igwyrsw/WZAKER+3
 const ANDROID_REPO = "AhmedMohamedH10/wzaker-app-release";
 
 /* دخول جوجل: الـ Client ID بتاع Google Cloud (بيبان للناس عادي، مش سر). سيبه "" لو لسه ما اتفعّلش وزرار الدخول والمسابقة مش هيظهروا */
-const GOOGLE_CLIENT_ID = "";
-
+const GOOGLE_CLIENT_ID = "13720239105-n581u7t24i4ecr9sq8u8tqb0gk0jrtd8.apps.googleusercontent.com";
 /* Cloudflare Turnstile (اختياري، بيتأكد إن اللي داخل المسابقة إنسان). الـ Site Key بيبان للناس عادي. سيبه "" لو مش عاوزه */
 const TURNSTILE_SITEKEY = "";
