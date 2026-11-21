@@ -278,3 +278,8 @@
 .gt.on{opacity:1}
 .gt b{font-weight:400;color:var(--text);font-variant-numeric:tabular-nums;margin-inline:.2em}
 @media (prefers-reduced-motion:reduce){.gt{transition:none}}
+
+/* v31: العدّاد العالمي أكبر شوية، وكلمة الله بلون الموقع */
+.gt{font-size:1.2rem;margin-bottom:6vh}
+.gt .gt-a{color:var(--accent)}
+@media (max-width:420px){.gt{font-size:1.08rem}}
