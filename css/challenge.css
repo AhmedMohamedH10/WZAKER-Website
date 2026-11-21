@@ -178,3 +178,60 @@
 .duo .ct .msg{margin-top:8px}
 .orn{margin-top:6vh}
 .orn + .ch{margin-top:6vh}
+
+
+/* ───── تهدئة الزحمة (v21) ─────
+   السبب: صناديق جوّا صناديق (بطاقة ← مربعات ← قائمة)، كلها بنفس الحدود والتدرّج، فمفيش عنصر بيبان إنه الأهم.
+   الحل: بطاقة واحدة بدون صناديق داخلية، فواصل رفيعة بدل الحدود، وشيل المعلومة المكررة لما الهدف يتحقق. */
+
+/* لوحة الترتيب: إطار التصنيف زي ما هو، وعنوانه (التبويب) نص عادي بدون كبسولة/إطار حوالين الكلمة */
+#lb{border:1px solid var(--line);border-radius:24px;overflow:hidden;background:rgba(var(--accent-rgb),.025);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);margin-top:30px}
+#lb .tabs{margin:0;padding:12px 8px 8px;gap:22px;border-bottom:1px solid var(--line);background:rgba(var(--accent-rgb),.035)}
+#lb .tabs button{padding:0 4px;border:0;border-radius:0;background:none;color:var(--dim);font-size:1rem;
+  -webkit-backdrop-filter:none;backdrop-filter:none}
+#lb .tabs button:hover{background:none;border:0;color:var(--text)}
+#lb .tabs button[aria-pressed=true]{background:none;color:var(--accent)}
+#lb .tabs button[aria-pressed=true]::after{content:"";display:block;width:18px;height:2px;margin:3px auto 0;border-radius:2px;background:var(--accent)}
+#lb .board{border:0;border-radius:0;background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+#lb .board li{padding:12px 20px}
+
+/* المربعات الصغيرة: شريط واحد بفواصل رفيعة بدل 3 صناديق */
+.tiles{gap:0;margin-top:18px}
+.tile{border:0;border-radius:0;background:none;padding:2px 8px}
+.tile + .tile{border-inline-start:1px solid var(--line)}
+.tile .tl{font-size:.82rem;color:rgba(233,255,244,.62)}
+.tile b{font-size:1.15rem}
+
+/* الهدف اليومي: الرقم والوحدة في سطر واحد */
+.dy-g{display:grid;grid-template-columns:auto auto;justify-content:center;align-items:baseline;column-gap:10px}
+.dy-l{grid-column:1/-1;text-align:center;font-size:.9rem;color:rgba(233,255,244,.62)}
+.dy-u{font-size:1rem}
+.dy-bar{margin-top:16px}
+.dy-me{margin-top:16px}
+
+/* لما الهدف يتحقق: "تقدّمك" و"المتبقي" بقوا تكرار (نفس الرقم و٠)، فبيختفوا ويفضل الوقت المتبقي بس */
+#daily.ok .dy-tiles .tile:nth-child(-n+2){display:none}
+#daily.ok .dy-tiles{margin-top:14px}
+#daily.ok .dy-tiles .tile{padding:0}
+#daily.ok .dy-tiles .tile{flex-direction:row;gap:8px}
+#daily.ok .dy-tiles .tile .tl::after{content:":"}
+#daily.ok .dy-tiles .tile b{font-size:1rem;font-weight:400;color:var(--dim)}
+#daily.ok .dy-tiles{display:flex;justify-content:center}
+
+/* قائمة "أول من بلغوا الهدف": بدون صندوق تاني جوّا البطاقة */
+.dy-k{margin:16px 0 4px;padding-top:14px}
+.dy-top{border:0;border-radius:0;background:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.dy-top li{padding:9px 6px}
+.dy-top li.me{background:none}
+.dy-top li:last-child{border-bottom:0}
+
+/* العنوان: أيقونة أصغر شوية علشان ما تنافسش اسم القسم */
+.sec-ic{width:38px;height:38px}
+.sec-ic svg{width:19px;height:19px}
+
+/* بطاقة المسابقة: نفس إيقاع بطاقة الهدف */
+.ct-card{padding:26px 22px 22px}
+.ct-tiles{margin-top:10px}
+.ct-k{color:rgba(233,255,244,.62)}
+#daily.ok .dy-tiles .tile{border:0}

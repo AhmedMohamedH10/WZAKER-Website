@@ -260,6 +260,7 @@
     $("dy-t1").textContent = reg ? num(p) : "–"; $("dy-t2").textContent = reg ? num(Math.max(0, D.goal - p)) : "–";
     $("dy-t3").textContent = D.end ? left(D.end - (Date.now() + D.off)) : "–";
     $("dy-me").classList.toggle("done", ok);
+    $("daily").classList.toggle("ok", ok);
     $("dy-me").textContent = !S.g ? "سجّل دخولك ليُحتسب تسبيحك." : !S.name ? "اختر اسمك من القائمة ليُحتسب تسبيحك." : ok ? "ما شاء الله، بلغتَ هدف اليوم." : "";
     $("dy-note").textContent = D.reached > 3 ? "بلغ الهدف اليوم " + who(D.reached) + "." : "";
   }
