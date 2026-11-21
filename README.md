@@ -144,3 +144,27 @@ UPDATE players SET banned=1 WHERE id='ID_HERE';   -- حظر الحساب (بيت
 - **`migrate.js`**: بيقبل بيانات الانتقال بس لو مفيش حساب على الجهاز، وبيتحقق من القيم. تقدر تحذفه (وسطر `<script>` بتاعه في `index.html`) بعد ما الناس تخلص انتقالها من الدومين القديم.
 - **`.gitignore`**: بيمنع رفع `.dev.vars` والأسرار على GitHub لما تشغّل `upload.bat`.
 - **من خارج الكود (إعدادات Cloudflare):** Rate Limiting rule على `/api/*`، وCloudflare Access على `/admin.html` و`/api/admin/*`، وراجع حصة الخطة المجانية (Workers: 100 ألف طلب يومياً، D1: 100 ألف صف مكتوب يومياً) قبل أول خميس.
+
+
+## نسخ احتياطي يومي لقاعدة البيانات (v10)
+الملف `.github/workflows/backup.yml` بيصدّر قاعدة D1 كل يوم الساعة 01:00 UTC، بيشفّرها (AES-256) وبيحفظها كـ Artifact في GitHub لمدة 30 يوم. التشفير ضروري لأن القاعدة فيها إيميلات اللاعبين.
+
+**الإعداد (مرة واحدة):** في GitHub > Settings > Secrets and variables > Actions أضف 3 Secrets:
+- `CLOUDFLARE_API_TOKEN`: من Cloudflare > My Profile > API Tokens > Create Token (Custom) بصلاحية **Account > D1 > Edit**.
+- `CLOUDFLARE_ACCOUNT_ID`: من صفحة Workers & Pages (الـ Account ID على اليمين).
+- `BACKUP_PASSPHRASE`: كلمة سر طويلة عشوائية للتشفير. **احفظها في مكان تاني**، من غيرها النسخ مش هتتفتح.
+
+بعدها من تبويب Actions شغّل «D1 Backup» يدوياً (Run workflow) مرة للتجربة، وتأكد إنها خضرا.
+
+**تحميل نسخة وفكّها:**
+```
+openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in wzaker-2026-11-21.sql.enc -out backup.sql
+```
+**الاسترجاع** (على قاعدة فاضية أو جديدة، بعد ما تتأكد من الملف):
+```
+npx wrangler d1 execute wzaker --remote --file=backup.sql
+```
+ملاحظات: التصدير بيقفل الكتابة على القاعدة لحظات (يهم لو القاعدة كبيرة). GitHub بيوقف الـ workflows المجدولة بعد 60 يوم من عدم نشاط المستودع، فلو وقفت ادخل Actions وفعّلها. وD1 فيه كمان Time Travel (استرجاع لنقطة زمنية) بمدة بتختلف حسب الخطة، وده شبكة أمان إضافية مش بديل عن النسخ.
+
+## العدّاد العالمي (v10)
+سطر «ذكرنا الله معاً X مرة» تحت الإحصائيات. الرقم بيتحفظ في `settings` تحت `taps_total` ويزيد مع كل مزامنة، وأول نبضة بيتحسب من مجموع `players.total`، فمفيش migration. بيحسب تسبيحات حسابات جوجل بس (اللي بتتزامن مع السيرفر). لو عايز تصفّره: `DELETE FROM settings WHERE k='taps_total';` وهيتحسب تاني من المجموع.

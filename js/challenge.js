@@ -179,22 +179,45 @@
       let from = ""; try { from = localStorage.getItem(FROM) || ""; } catch (e) {}
       const s = await api("ping", { vid, tap: Date.now() - lastTap < 60000, ref: from });
       countTo($("s-v"), s.visitors); countTo($("s-o"), s.online); countTo($("s-t"), s.tapping);
+      if (s.taps != null) { $("gt").classList.add("on"); countTo($("s-g"), s.taps); }
       hintStats();
       refs(s.refs);
     } catch (e) {}
   }
-  /* الوصف ينساب بجانب الرقم: عند اللمس يبقى ثانيتين ثم يُطوى، ومرة واحدة عند أول تحميل للإيحاء بذلك */
+  /* الوصف جنب الرقم: عند اللمس يبقى ثانيتين ثم يُطوى، ومرة واحدة عند أول تحميل للإيحاء بذلك.
+     الحركة بأسلوب FLIP: نحسب المكان النهائي للأزرار مرة واحدة ونحرّكها بـtransform فقط (بدون إعادة ترتيب كل فريم)،
+     والوصف يظهر بقصّ (clip) تدريجي. مؤقّت واحد مشترك وقفل قصير للـhover عشان ما يفتح ويقفل بتكرار. */
   const STS = [...document.querySelectorAll(".st")];
-  let hinted0 = false;
+  const PULSE = document.querySelector(".pulse");
+  let hinted0 = false, stT = [], hoverT = 0;
+  const stClear = () => { stT.forEach(clearTimeout); stT = []; clearTimeout(hoverT); };
+  /* واحد بس مفتوح في الوقت؛ الوصف بيتفتح بالـCSS (grid 0fr → 1fr) فالحركة ناعمة والصف مبيتداخلش */
+  function stSet(target) { STS.forEach(e => e.classList.toggle("open", e === target)); }
   function hintStats() {
     if (hinted0 || reduce) return; hinted0 = true;
-    STS.forEach((el, i) => { setTimeout(() => el.classList.add("open"), 700 + i * 800); setTimeout(() => el.classList.remove("open"), 1700 + i * 800); });
+    STS.forEach((el, i) => {
+      stT.push(setTimeout(() => stSet(el), 700 + i * 2000));
+      stT.push(setTimeout(() => stSet(null), 700 + i * 2000 + 1500));
+    });
   }
-  STS.forEach(el => el.addEventListener("click", () => {
-    const was = el.classList.contains("open");
-    STS.forEach(x => x.classList.remove("open"));
-    if (!was) { el.classList.add("open"); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove("open"), 2600); }
-  }));
+  STS.forEach(el => {
+    el.addEventListener("click", e => {
+      if (e.pointerType === "mouse") return;
+      stClear();
+      const was = el.classList.contains("open");
+      stSet(was ? null : el);
+      if (!was) stT.push(setTimeout(() => stSet(null), 2600));
+    });
+    /* الماوس: تأخير بسيط ونتأكد إن المؤشر لسه فوق الزر، عشان الصف وهو بيتحرّك ما يفتح ويقفل بتكرار */
+    el.addEventListener("pointerenter", e => {
+      if (e.pointerType !== "mouse") return;
+      stClear();
+      hoverT = setTimeout(() => { if (el.matches(":hover")) stSet(el); }, 90);
+    });
+  });
+  if (PULSE) PULSE.addEventListener("pointerleave", e => {
+    if (e.pointerType === "mouse") { stClear(); stT.push(setTimeout(() => stSet(null), 250)); }
+  });
   setInterval(ping, 60000);
 
   // ───── مشاركة الموقع: رابط إحالة خاص بكل زائر، ويُحصى من انضمّ عبره وسبّح ─────

@@ -239,6 +239,15 @@ async function afFail(db, k, row, now) {
 }
 // ───── تنضيف الزوار القدام: اللي ما سبّحوش وغايبين 90 يوم. العدد المحذوف بيتحفظ في settings ويتضاف للعدّاد علشان الرقم المعروض ما ينزلش ─────
 const prunedN = async db => { try { const r = await db.prepare("SELECT v FROM settings WHERE k='v_pruned'").first(); return r ? parseInt(r.v, 10) || 0 : 0; } catch (e) { return 0; } };
+// ───── العدّاد العالمي: مجموع تسبيحات كل اللاعبين. بيتخزّن في settings (taps_total) ويزيد مع كل مزامنة؛ أول مرة بيتحسب من مجموع players.total ─────
+const tapsTotal = async db => {
+  try {
+    const q = () => db.prepare("SELECT v FROM settings WHERE k='taps_total'").first();
+    let r = await q();
+    if (!r) { await db.prepare("INSERT OR IGNORE INTO settings(k,v) SELECT 'taps_total', CAST(COALESCE(SUM(total),0) AS TEXT) FROM players").run(); r = await q(); }
+    return r ? Math.max(0, parseInt(r.v, 10) || 0) : null;
+  } catch (e) { return null; }
+};
 async function pruneVisitors(db, now) {
   try {
     await db.prepare("INSERT OR IGNORE INTO settings(k,v) VALUES('v_pruned','0')").run();   // لو جدول settings مش موجود بيفشل هنا قبل أي حذف
@@ -415,7 +424,7 @@ export async function onRequest({ request, env, params, waitUntil }) {
           db.prepare("SELECT COUNT(*) AS n FROM visitors WHERE last_tap>?").bind(now - 90000),
           db.prepare("SELECT COUNT(*) AS n FROM visitors WHERE ref=? AND last_tap>0").bind(vid)]);   // اللي انضمّوا عبر رابطك وسبّحوا فعلاً
         if (Math.random() < 0.01) bg(pruneVisitors(db, now));
-        return J({ visitors: a.results[0].n + await prunedN(db), online: o.results[0].n, tapping: t.results[0].n, refs: r.results[0].n });
+        return J({ visitors: a.results[0].n + await prunedN(db), online: o.results[0].n, tapping: t.results[0].n, refs: r.results[0].n, taps: await tapsTotal(db) });
       }
 
       if (route === "auth/google") {                // دخول بجوجل: يربط الحساب باللاعب (ويحتفظ بتقدّم الجهاز لو أول مرة)
@@ -510,6 +519,7 @@ export async function onRequest({ request, env, params, waitUntil }) {
         // last_sync بيتقدّم بقدر اللي اتصرف بس. الشرط last_sync=? بيمنع طلبين متوازيين من إنهم ياخدوا نفس الرصيد
         const u = await db.prepare("UPDATE players SET total=total+?1, last_sync=?2 WHERE id=?3 AND last_sync=?4 RETURNING total").bind(d, Math.min(now, Math.round(base + d / SYNC_RATE * 1000)), me.id, me.last_sync).first();
         if (!u) return J({ total: me.total, accepted: 0 });      // طلب تاني سبقنا: العميل بيعيد المحاولة في المزامنة الجاية
+        bg(db.prepare("UPDATE settings SET v=CAST(CAST(v AS INTEGER)+?1 AS TEXT) WHERE k='taps_total'").bind(d).run().catch(() => {}));   // العدّاد العالمي (لو لسه مش موجود بيتحسب من المجموع أول نبضة)
         const r = okRoom(b.room);
         if (r) await db.prepare("INSERT INTO room_scores(room,id,count) VALUES(?1,?2,?3) ON CONFLICT(room,id) DO UPDATE SET count=count+?3").bind(r, me.id, d).run();
         const dy = await dailyAdd(db, me.id, d, now);             // الهدف اليومي (اختياري)

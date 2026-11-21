@@ -235,3 +235,46 @@
 .ct-tiles{margin-top:10px}
 .ct-k{color:rgba(233,255,244,.62)}
 #daily.ok .dy-tiles .tile{border:0}
+
+
+/* ───── إحصائيات: الوصف جنب الرقم بحركة ناعمة (v25) ─────
+   اللي كان بيعلّق: (1) max-width بيتحرّك فالصف كله يعيد ترتيبه كل فريم، (2) الـ9em أوسع من النص الفعلي فجزء من الوقت ضايع،
+   (3) على الشاشات الضيقة الصف كان ممكن يلف لسطر تاني لما الوصف يفتح، (4) الـhover بيحرّك الزر من تحت الماوس فيفتح ويقفل بتكرار.
+   الحل: الوصف بيتحسب مكانه النهائي مرة واحدة والحركة كلها transform/clip (من غير إعادة ترتيب)، والصف مايلفش، والـhover له قفل قصير. */
+.ch .pulse{flex-wrap:nowrap}
+.ch .pulse button.st{position:relative}
+.st .lb{display:none;max-width:none;overflow:visible;opacity:1;transform:none;transition:none;white-space:nowrap}
+.st.open .lb,.st.closing .lb,.st:focus-visible .lb{display:inline-block}
+.st.closing .lb{position:absolute;margin:0;pointer-events:none}
+.st .lb i{padding-inline-start:8px}
+@media (max-width:420px){.st .lb i{padding-inline-start:6px}}
+
+/* ───── إحصائيات v26: الوصف على الجنب بجانب الرقم، يتفتح بعرض حقيقي بسلاسة ─────
+   من غير position:absolute ومن غير FLIP: القديم بيقفل والجديد بيفتح في نفس اللحظة والصف بيتوزّع لوحده، فمفيش تداخل. */
+.ch .pulse{flex-wrap:nowrap;margin-bottom:7vh}
+.ch .pulse button.st{position:relative}
+.ch .pulse .st .lb{display:inline-grid;grid-template-columns:0fr;position:static;margin:0;max-width:none;overflow:hidden;
+  opacity:0;transform:none;pointer-events:none;white-space:nowrap;
+  transition:grid-template-columns .6s cubic-bezier(.22,.8,.25,1),opacity .45s ease}
+.ch .pulse .st .lb i{display:block;min-width:0;overflow:hidden;padding:0;font-size:1.02rem}
+.ch .pulse .st .lb i::before{content:"";display:inline-block;width:8px}
+.ch .pulse .st.open .lb,.ch .pulse .st:focus-visible .lb{grid-template-columns:1fr;opacity:1}
+.ch .pulse .st.open svg{opacity:1}
+@media (max-width:420px){.ch .pulse .st .lb i{font-size:.88rem}.ch .pulse .st .lb i::before{width:6px}}
+@media (max-width:360px){.ch .pulse .st .lb i{font-size:.8rem}.ch .pulse .st .lb i::before{width:4px}}
+@media (prefers-reduced-motion:reduce){.ch .pulse .st .lb{transition:none}}
+
+/* v29: فيد صافي للكلمة كاملة (من غير إحساس الكتابة حرف حرف):
+   المساحة تتفتح الأول، والكلمة ما تبدأ تظهر غير لما تكون المساحة اتفتحت تقريباً، وفي القفل الكلمة تختفي قبل ما المساحة تضيق. */
+.ch .pulse .st .lb{opacity:1;transition:grid-template-columns .55s cubic-bezier(.4,0,.2,1) .15s}
+.ch .pulse .st.open .lb,.ch .pulse .st:focus-visible .lb{transition:grid-template-columns .55s cubic-bezier(.4,0,.2,1)}
+.ch .pulse .st .lb i{opacity:0;transform:none;transition:opacity .2s ease}
+.ch .pulse .st.open .lb i,.ch .pulse .st:focus-visible .lb i{opacity:1;transform:none;transition:opacity .7s ease .38s}
+@media (prefers-reduced-motion:reduce){.ch .pulse .st .lb,.ch .pulse .st.open .lb,.ch .pulse .st .lb i,.ch .pulse .st.open .lb i{transition:none}}
+
+/* v30: سطر العدّاد العالمي تحت الإحصائيات: هادي وبيظهر بفيد لما أول رقم يوصل */
+.ch .pulse{margin-bottom:2.2vh}
+.gt{margin:0 auto 5.5vh;font-size:.95rem;color:var(--dim);opacity:0;transition:opacity 1.4s ease}
+.gt.on{opacity:1}
+.gt b{font-weight:400;color:var(--text);font-variant-numeric:tabular-nums;margin-inline:.2em}
+@media (prefers-reduced-motion:reduce){.gt{transition:none}}
