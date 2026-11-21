@@ -17,7 +17,7 @@
     try { if (r.length === 10 && !localStorage.getItem("wz_vid") && !localStorage.getItem(FROM)) localStorage.setItem(FROM, r); } catch (e) {}
     if (u.searchParams.has("r")) { u.searchParams.delete("r"); history.replaceState(null, "", u.pathname + u.search + u.hash); }
   })();
-  const num = n => Number(n).toLocaleString("ar-EG");   // أرقام هندية (٤٨٠)
+  const num = n => Number(n).toLocaleString("ar-EG").replace(/\u066C/g, ",");   // أرقام هندية (٤٨٠)
   const rnd = n => [...crypto.getRandomValues(new Uint8Array(n))].map(b => "abcdefghjkmnpqrstuvwxyz23456789"[b % 31]).join("");
   const say = t => { $("msg").textContent = t || ""; };
   const sayA = t => { $("act-msg").textContent = t || ""; };   // رسائل الأزرار اللي تحت (نسخ الرابط) بتظهر جنبها

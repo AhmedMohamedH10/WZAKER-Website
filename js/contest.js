@@ -5,7 +5,7 @@
   if (!$("contest")) return;
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const AR = s => String(s).replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
-  const num = n => Number(n).toLocaleString("ar-EG");
+  const num = n => Number(n).toLocaleString("ar-EG").replace(/\u066C/g, ",");
   const CID = typeof GOOGLE_CLIENT_ID !== "undefined" ? GOOGLE_CLIENT_ID : "";
   const TSK = typeof TURNSTILE_SITEKEY !== "undefined" ? TURNSTILE_SITEKEY : "";
   let user = null, authOn = false, editing = false, claimEdit = false, ST = null, offset = 0, pending = 0, busy = false, lastTap = 0, seen = false, tsId = null, tsTok = "";
@@ -19,7 +19,7 @@
   const say = (id, t) => { $(id).textContent = t || ""; };
   const localId = () => { try { return (JSON.parse(localStorage.getItem("wz_tasbeeh") || "{}").id) || null; } catch (e) { return null; } };
   const dur = ms => { const t = Math.max(0, Math.round(ms / 1000)), m = Math.floor(t / 60), s = t % 60; return (m ? num(m) + " د " : "") + num(s) + " ث"; };
-  const rate = r => Number(r).toLocaleString("ar-EG", { maximumFractionDigits: 1 }) + " تسبيحة/ث";
+  const rate = r => Number(r).toLocaleString("ar-EG", { maximumFractionDigits: 1 }).replace(/\u066C/g, ",") + " تسبيحة/ث";
   const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt !== undefined) e.textContent = txt; return e; };
 
   // ───── دخول جوجل ─────
