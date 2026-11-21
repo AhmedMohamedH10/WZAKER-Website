@@ -80,7 +80,7 @@
     try {
       const s = await api("contest/state");
       if (s.authOn !== undefined) authOn = s.authOn;
-      if (!s.on) { $("contest").hidden = true; ST = null; return; }
+      if (!s.on) { $("contest").hidden = true; $("hall").hidden = true; ST = null; return; }
       ST = s; offset = s.now - Date.now();
       if (!s.auth && user) { user = null; dispatchEvent(new Event("wz-nosession")); acct(); }
       if (s.auth && user && user.named !== s.named) { user.named = s.named; acct(); }
@@ -139,6 +139,7 @@
     $("ct-done").hidden = !(ST.rej || (w && w.mine));
     $("ct-end").hidden = !w || w.mine;
     $("ct-hall").hidden = !(ST.hall && ST.hall.length);
+    $("hall").hidden = $("ct-hall").hidden;
     if (!$("ct-wait").hidden) {
       $("ct-cd").textContent = cd(ST.start - t);
       const at = o => { try { return new Date(ST.start).toLocaleString("ar-EG", Object.assign({ timeZone: ST.tz }, o)); } catch (e) { return new Date(ST.start).toLocaleString("ar-EG", o); } };

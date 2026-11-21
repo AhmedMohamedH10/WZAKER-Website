@@ -142,3 +142,12 @@ footer .by{margin-top:4px;font-family:var(--font-first);font-size:.9rem}
 /* حماية الشعار من السحب والحفظ السهل: مفيش تحديد ولا سحب ولا قائمة "حفظ الصورة" */
 .wz-logo{-webkit-user-drag:none;user-drag:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;pointer-events:none}
 .sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* شاشات صغيرة (360px وأقل): دواير التحميل أصغر علشان الاتنين يفضلوا جنب بعض، وقايمة مديا فاير ما تطلعش برّه الشاشة */
+@media (max-width:380px){
+  .downloads{gap:26px 22px}
+  .disc{width:112px;height:112px}
+  .disc svg{width:44px;height:44px}
+  .mf{width:168px;margin:16px -28px 0}
+  .mf-note{white-space:normal;text-align:center}
+}

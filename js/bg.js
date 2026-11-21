@@ -4,12 +4,13 @@
   if (!cv) return;
   const ctx = cv.getContext("2d");
   /* تقليل الحركة: رسم ثابت. الهواتف (اللمس): حركة هادية بس (دوران + إزاحة مع السكرول) بمعدل 30 فريم علشان البطارية */
-  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const conn = navigator.connection, lite = !!conn && (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || ""));
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches || lite;
   const touch = matchMedia("(pointer: coarse)").matches;
   const FRAME = touch ? 1000 / 30 : 0;
   let sy = 0, tsy = 0, born = 0;
   const RGB = "61,255,163", TAU = Math.PI * 2;
-  let W = 0, H = 0, dpr = 1, rosettes = [], raf = 0, last = 0;
+  let W = innerWidth, H = innerHeight, dpr = 1, rosettes = [], raf = 0, last = 0;
   const m = { x: 0, y: 0, tx: 0, ty: 0, on: false, px: 0, py: 0, tpx: 0, tpy: 0 };
 
   /* نقطة على دايرة */
@@ -172,5 +173,6 @@
   /* على الموبايل شريط المتصفح بيطلع وينزل وقت السكرول ويغيّر الارتفاع بس: منعيدش بناء الزخارف وقتها */
   addEventListener("resize", () => { if (touch && Math.abs(innerWidth - W) < 2) return; size(); }, { passive: true });
 
-  size(); start();
+  const go = () => { size(); start(); };
+  "requestIdleCallback" in window ? requestIdleCallback(go, { timeout: 800 }) : setTimeout(go, 200);   // بعد ما المحتوى يظهر، علشان النت الضعيف
 })();

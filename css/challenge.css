@@ -283,3 +283,30 @@
 .gt{font-size:1.2rem;margin-bottom:6vh}
 .gt .gt-a{color:var(--accent)}
 @media (max-width:420px){.gt{font-size:1.08rem}}
+
+
+/* ───── v32: أقسام موحّدة (عنوان بأيقونة + فاصل + مسافة واحدة) + شاشات صغيرة ───── */
+:root{--gap:clamp(40px,7vh,72px)}
+.sh{display:flex;align-items:center;justify-content:center;gap:12px;margin:0 0 3vh}
+.sh h2,.ch .sh h2{margin:0}
+.sh-s{max-width:380px;margin:-1vh auto 3vh;color:var(--dim);font-size:.92rem;line-height:1.7;text-wrap:balance}
+#download{margin-top:6vh}
+.orn{margin:var(--gap) auto 0}
+.orn + .ch{margin-top:var(--gap)}
+.duo{margin:var(--gap) auto 0;gap:var(--gap)}
+.ch.ch-act{margin-bottom:6vh}
+.duo:not(:has(> .sec:not([hidden]))),.orn:has(+ .duo:not(:has(> .sec:not([hidden])))){display:none}   /* قسمين مخفيين: ما نسيبش فاصل ولا فراغ */
+@media (max-width:360px){.tile .tl{font-size:.74rem}.tile{padding:2px 3px}}
+@media (max-width:340px){.ch .pulse{flex-wrap:wrap;row-gap:2px}}
+
+/* ───── v33: ترتيب جديد + مسافات أضيق ───── */
+:root{--gap:clamp(32px,5vh,52px)}
+.sh-lb{margin-top:5vh}
+.sh + #lb{margin-top:0}
+#challenge{margin-bottom:0}
+.ch.ch-act{margin-top:var(--gap)}
+.duo .sec > .ct-pane{margin-top:2.6vh}
+.app{margin-bottom:28px}
+.app-stage{margin:36px 0 26px}
+.gt{margin-bottom:4vh}
+.duo{margin-bottom:var(--gap)}
