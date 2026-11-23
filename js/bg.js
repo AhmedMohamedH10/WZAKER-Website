@@ -85,12 +85,13 @@
   }
 
   function size() {
-    W = innerWidth; dpr = Math.min(2, devicePixelRatio || 1);
+    W = innerWidth; dpr = Math.min(touch ? 1.5 : 2, devicePixelRatio || 1);
     /* الموبايل: الارتفاع بيثبت على أكبر ارتفاع للشاشة (والشريط مخفي) علشان الدواير ما تتمطّش ولا تتغير وقت السكرول */
     H = touch ? Math.max(innerHeight, Math.min(screen.height || innerHeight, Math.round(innerHeight * 1.25))) : innerHeight;
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
     cv.style.cssText = `position:fixed;left:0;top:0;right:auto;bottom:auto;width:${W}px;height:${H}px`;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
     build();
     if (reduce) draw(0, 0);
   }
@@ -122,7 +123,7 @@
     const kc = 1 - Math.exp(-dt * 6), kp = 1 - Math.exp(-dt * 2.2), kb = 1 - Math.exp(-dt * 3);
     if (m.on) { m.x += (m.tx - m.x) * kc; m.y += (m.ty - m.y) * kc; }
     m.px += (m.tpx - m.px) * (1 - Math.exp(-dt * 2)); m.py += (m.tpy - m.py) * (1 - Math.exp(-dt * 2));
-    tsy = scrollY; sy += (tsy - sy) * (1 - Math.exp(-dt * 14));
+    if (!touch) { tsy = scrollY; sy += (tsy - sy) * (1 - Math.exp(-dt * 14)); }   /* الموبايل: الخلفية ثابتة مع السكرول (أنعم وأخف) */
     const intro = reduce ? 1 : Math.min(1, (t - born) / 1800), ease = 1 - Math.pow(1 - intro, 3);   /* ظهور تدريجي أول ما الصفحة تفتح */
 
     for (const g of rosettes) {
@@ -156,7 +157,8 @@
 
   function loop(ts) {
     raf = requestAnimationFrame(loop);
-    if (FRAME && ts - scrollAt > 700 && ts - last < FRAME - 2) return;   /* 30 فريم وقت الهدوء، وكامل السلاسة وقت السكرول */
+    if (touch && ts - scrollAt < 160) { last = ts; return; }   /* الموبايل: بنوقّف الرسم وقت السكرول علشان الصفحة تمشي بدون تقطيع، والدوران البطيء مش بيبان */
+    if (FRAME && ts - last < FRAME - 2) return;
     const dt = Math.min(.05, (ts - last) / 1000 || .016); last = ts;
     draw(ts, dt);
   }

@@ -154,3 +154,10 @@ footer .by{margin-top:4px;font-family:var(--font-first);font-size:.9rem}
   .mf{width:168px;margin:16px -28px 0}
   .mf-note{white-space:normal;text-align:center}
 }
+
+/* الموبايل: من غير بلور (backdrop-filter) خالص، لأنه كان بيعيد حساب الخلفية كل فريم ويعلّق السكرول. بدله تعتيم خفيف ثابت */
+@media (pointer:coarse){
+  *,*::before,*::after{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+  .disc{background:linear-gradient(rgba(var(--accent-rgb),.035),rgba(var(--accent-rgb),.035)),rgba(9,15,11,.72)}
+  .verse::before,.tag::before,h2::before,.app-name::before,.app-ver::before,.dk-cur::before,.hello::before{background:rgba(9,15,11,.5)}
+}
