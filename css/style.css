@@ -69,8 +69,8 @@ button.dl{background:none;border:0;padding:0;font:inherit;cursor:pointer}
 #dl-mf[aria-expanded=true] .disc{border-color:rgba(var(--accent-rgb),.55);background:rgba(var(--accent-rgb),.08)}
 .warn-b{position:absolute;top:5px;right:5px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
   background:var(--bg);border:1px solid rgba(255,200,87,.55)}
-.warn-b svg{width:16px;height:16px;fill:none;stroke:#ffc857;stroke-width:2;stroke-linecap:round}
-.warn-b svg .d,.mf-note svg .d{fill:#ffc857;stroke:none}
+.warn-b svg,.disc .warn-b svg{width:16px;height:16px;fill:none;stroke:#ffc857;stroke-width:2;stroke-linecap:round;transform:none}
+.warn-b svg .d,.disc .warn-b svg .d,.mf-note svg .d{fill:#ffc857;stroke:none}
 .mf{max-width:250px;margin:22px auto 0;padding:8px;border:1px solid var(--line);border-radius:20px;background:rgba(var(--accent-rgb),.03);
   display:flex;flex-direction:column;gap:6px;animation:mfin .35s ease both}
 .mf[hidden]{display:none}
@@ -137,6 +137,9 @@ footer .by{margin-top:4px;font-family:var(--font-first);font-size:.9rem}
     background:rgba(9,15,11,.34);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);
     -webkit-mask-image:radial-gradient(ellipse closest-side,#000 55%,transparent);mask-image:radial-gradient(ellipse closest-side,#000 55%,transparent)}
   .dl .name{position:relative}
+  /* الذكر: الطبقة على قد الكلمة بس، مش بعرض الصفحة */
+  .dk-cur{width:fit-content;max-width:100%;margin-inline:auto}
+  .dk-cur::before{inset:-4px -14px}
 }
 
 /* حماية الشعار من السحب والحفظ السهل: مفيش تحديد ولا سحب ولا قائمة "حفظ الصورة" */
