@@ -8,7 +8,7 @@
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches || lite;
   const touch = matchMedia("(pointer: coarse)").matches;
   const FRAME = touch ? 1000 / 30 : 0;
-  let sy = 0, tsy = 0, born = 0;
+  let sy = 0, tsy = 0, born = 0, scrollAt = -1e9;
   const RGB = "61,255,163", TAU = Math.PI * 2;
   let W = innerWidth, H = innerHeight, dpr = 1, rosettes = [], raf = 0, last = 0;
   const m = { x: 0, y: 0, tx: 0, ty: 0, on: false, px: 0, py: 0, tpx: 0, tpy: 0 };
@@ -85,8 +85,11 @@
   }
 
   function size() {
-    W = innerWidth; H = innerHeight; dpr = Math.min(2, devicePixelRatio || 1);
+    W = innerWidth; dpr = Math.min(2, devicePixelRatio || 1);
+    /* الموبايل: الارتفاع بيثبت على أكبر ارتفاع للشاشة (والشريط مخفي) علشان الدواير ما تتمطّش ولا تتغير وقت السكرول */
+    H = touch ? Math.max(innerHeight, Math.min(screen.height || innerHeight, Math.round(innerHeight * 1.25))) : innerHeight;
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    cv.style.cssText = `position:fixed;left:0;top:0;right:auto;bottom:auto;width:${W}px;height:${H}px`;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     build();
     if (reduce) draw(0, 0);
@@ -119,14 +122,14 @@
     const kc = 1 - Math.exp(-dt * 6), kp = 1 - Math.exp(-dt * 2.2), kb = 1 - Math.exp(-dt * 3);
     if (m.on) { m.x += (m.tx - m.x) * kc; m.y += (m.ty - m.y) * kc; }
     m.px += (m.tpx - m.px) * (1 - Math.exp(-dt * 2)); m.py += (m.tpy - m.py) * (1 - Math.exp(-dt * 2));
-    sy += (tsy - sy) * (1 - Math.exp(-dt * 4));
+    tsy = scrollY; sy += (tsy - sy) * (1 - Math.exp(-dt * 14));
     const intro = reduce ? 1 : Math.min(1, (t - born) / 1800), ease = 1 - Math.pow(1 - intro, 3);   /* ظهور تدريجي أول ما الصفحة تفتح */
 
     for (const g of rosettes) {
       let tx = g.hx, ty = g.hy, near = 0;
       if (!reduce) {
         tx += Math.sin(ft * g.sp * 6.283 + g.ph) * g.amp + m.px * g.d * 18;
-        ty += Math.cos(ft * g.sp * 5 + g.ph) * g.amp + m.py * g.d * 18 - sy * g.d * .06;   /* إزاحة خفيفة مع السكرول */
+        ty += Math.cos(ft * g.sp * 5 + g.ph) * g.amp + m.py * g.d * 18;
         if (m.on) {
           const dx = g.x - m.x, dy = g.y - m.y, dist = Math.hypot(dx, dy) || 1, R = 200 + g.r * .6;
           if (dist < R) {
@@ -138,21 +141,22 @@
         g.boost += (near - g.boost) * kb;
       }
       if (g.glow) {
-        const gr = ctx.createRadialGradient(g.x, g.y, 0, g.x, g.y, g.r);
+        const gr = ctx.createRadialGradient(g.x, g.y - sy * g.d * .06, 0, g.x, g.y - sy * g.d * .06, g.r);
         gr.addColorStop(0, `rgba(${RGB},${.07 + g.boost * .06})`); gr.addColorStop(1, `rgba(${RGB},0)`);
-        ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(g.x, g.y, g.r, 0, TAU); ctx.fill();
+        ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(g.x, g.y - sy * g.d * .06, g.r, 0, TAU); ctx.fill();
       }
       const shimmer = reduce ? 1 : .88 + .12 * Math.sin(ft * .7 + g.ph * 2);   /* نبض نور هادي */
       const al = (1 + g.boost * 1.2) * shimmer * ease;   /* تنوّر بهدوء لما الماوس يقرّب */
       const sc = .94 + .06 * ease;
-      spin(g.o, g.x, g.y, ft * g.s1 * TAU, Math.min(1, al), sc);
-      spin(g.i, g.x, g.y, ft * g.s2 * TAU, Math.min(1, al), sc);
+      const gy = g.y - sy * g.d * .06;   /* إزاحة خفيفة مع السكرول، بتتبع الإصبع مباشرة */
+      spin(g.o, g.x, gy, ft * g.s1 * TAU, Math.min(1, al), sc);
+      spin(g.i, g.x, gy, ft * g.s2 * TAU, Math.min(1, al), sc);
     }
   }
 
   function loop(ts) {
     raf = requestAnimationFrame(loop);
-    if (FRAME && ts - last < FRAME - 2) return;
+    if (FRAME && ts - scrollAt > 700 && ts - last < FRAME - 2) return;   /* 30 فريم وقت الهدوء، وكامل السلاسة وقت السكرول */
     const dt = Math.min(.05, (ts - last) / 1000 || .016); last = ts;
     draw(ts, dt);
   }
@@ -169,7 +173,7 @@
   addEventListener("pointercancel", off, { passive: true });
   document.documentElement.addEventListener("mouseleave", off);
   document.addEventListener("visibilitychange", () => (document.hidden ? stop() : start()));
-  addEventListener("scroll", () => { tsy = scrollY; }, { passive: true });
+  addEventListener("scroll", () => { scrollAt = performance.now(); }, { passive: true });
   /* على الموبايل شريط المتصفح بيطلع وينزل وقت السكرول ويغيّر الارتفاع بس: منعيدش بناء الزخارف وقتها */
   addEventListener("resize", () => { if (touch && Math.abs(innerWidth - W) < 2) return; size(); }, { passive: true });
 
