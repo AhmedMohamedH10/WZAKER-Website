@@ -81,6 +81,36 @@ async function ipHash(request, env) {                      // بصمة مختص�
   return [...new Uint8Array(d).slice(0, 6)].map(x => x.toString(16).padStart(2, "0")).join("");
 }
 
+// ───── تحديد معدل الطلبات: طبقة أولى ضد البوتات والإغراق، بيتكمّل بـ Rate Limiting من لوحة Cloudflare ─────
+// عدّاد في ذاكرة نسخة التشغيل: نافذة دقيقة واحدة لكل (نوع مسار + بصمة IP + هوية الزائر). الحدود واسعة بحيث المستخدم
+// الطبيعي (حتى مع تبويبين مفتوحين أو شبكة مشتركة) ما يوصلهاش؛ اللي يعدّيها بيرجعله 429 من غير ما الطلب يتنفّذ.
+// الهوية من الكوكي أو معرّف اللاعب/الزائر، فالناس اللي على نفس الشبكة (واي فاي/موبايل) ما بيتعاقبوش ببعض.
+// ملحوظتان: العدّاد لكل نسخة تشغيل (isolate) ومش مشترك بينها، ولو حصل أي خطأ في العدّاد نفسه الطلب بيكمّل عادي.
+const RL_WIN = 60e3;
+const RL_GROUPS = [
+  ["admin", /^admin\//, 60, true],                                            // لوحة الأدمن: بالـ IP بس (مع قفل المحاولات الغلط الموجود). تبويبين من اللوحة ~26/دقيقة
+  ["auth", /^(auth\/google|auth\/logout|account\/name|contest\/enter|contest\/claim)$/, 20, false],
+  ["write", /^(sync|contest\/sync|ping)$/, 600, false],                        // المزامنة والنبض: تبويب واحد نشط في المسابقة ~113/دقيقة، فالحد فيه مساحة لـ 5 أجهزة
+];
+const RL_ALL = 12000;                                                          // سقف إجمالي لكل IP لكل طلبات POST، مهما غيّر المهاجم هويته (واسع عشان الشبكات المشتركة: ~100 تبويب نشط في المسابقة ~113/دقيقة لكل واحد)
+const rlBuckets = new Map();
+function rlSubject(request, b) {                                               // هوية الزائر في العدّاد: الكوكي أو معرّف اللاعب/الزائر (من غير بيانات حساسة)
+  const m = (request.headers.get("cookie") || "").match(new RegExp("(?:^|;\\s*)" + COOKIE + "=([^;]+)"));
+  return String((m && m[1]) || b.id || b.vid || "").slice(0, 60);
+}
+async function rateLimited(route, request, env, b) {
+  try {
+    const now = Date.now();
+    if (rlBuckets.size > 5000) rlBuckets.clear();
+    const ip = await ipHash(request, env);
+    const hit = k => { let x = rlBuckets.get(k); if (!x || x.reset <= now) { x = { n: 0, reset: now + RL_WIN }; rlBuckets.set(k, x); } return ++x.n; };
+    if (hit("all|" + ip) > RL_ALL) return true;
+    const g = RL_GROUPS.find(([, re]) => re.test(route));
+    if (!g) return false;
+    return hit(g[0] + "|" + ip + "|" + (g[3] ? "" : rlSubject(request, b))) > g[2];
+  } catch (e) { return false; }
+}
+
 // ───── المسابقة: "مَكْرُمَةُ ذِي الأَلْف" ─────
 // جولة كل خميس الساعة 10:00 مساءً بتوقيت بلد اللاعب. الجولات بتتعمل لوحدها أول ما حد يفتح الصفحة (من غير أي إعداد أو جدولة).
 // مفيش مدة للجولة: بتتقفل بأول واحد يبلغ الهدف، وساعتها اللاعبين بيشوفوا الجولة اللي بعدها (عدّ تنازلي لخميس الجاي).
@@ -268,6 +298,8 @@ export async function onRequest({ request, env, params, waitUntil }) {
       if (!(request.headers.get("content-type") || "").includes("application/json")) return J({ error: "type" }, 415);
       const b = await request.json().catch(() => ({}));
       const id = okId(b.id);
+
+      if (await rateLimited(route, request, env, b)) return J({ error: "rate" }, 429, { "retry-after": "60" });
 
       if (route.startsWith("admin/")) {             // لوحة الأدمن: كل المسارات محمية بـ ADMIN_KEY
         if (!env.ADMIN_KEY) return J({ error: "admin-off" }, 503);
@@ -569,3 +601,6 @@ export async function onRequest({ request, env, params, waitUntil }) {
     return J({ error: "not-found" }, 404);
   } catch (e) { return J({ error: "server" }, 500); }
 }
+
+// تصدير دوال داخلية علشان اختبارات مجلد tests/ بس. ما بيغيّرش أي سلوك في الموقع، والمتصفح مش بيستخدمه.
+export const _test = { cleanName, nameOk, okId, okRoom, okAvatar, turnstileOk, adminOk, makeCookie, sessionPlayer, ipHash, rateLimited, rlBuckets, offsetMs, localToUtc, roundStarts, validTz, dayInfo };
