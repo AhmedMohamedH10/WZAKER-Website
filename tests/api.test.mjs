@@ -156,6 +156,29 @@ test("المسابقة كاملة: بداية يدوية، مشاركة، فوز
   const ck3 = await cookieFor(env2, "player1003");
   r = await call("contest/enter", { body: { tz: "UTC" }, cookie: ck3, ip }, env2);
   assert.equal(r.status, 403); assert.equal((await r.json()).error, "name");
+
+  // الأدمن: «تم التواصل» بيقفل تعديل بيانات الفايز، و«إخفاء» بيشيله من لوحة المكرَّمين وشاشة باقي اللاعبين (ويفضل شايف فوزه)
+  const cid1 = (await DB2.prepare("SELECT contest_id AS c FROM contest_scores WHERE pid='player1001'").first()).c;
+  r = await call("contest/state", { method: "GET", cookie: ck2, ip, tz: "UTC" }, env2);
+  assert.equal((await r.json()).hall.length, 1);
+  r = await call("admin/winner/flag", { body: { key: AKEY, cid: cid1, pid: "player1001", contacted: true, hidden: true }, ip }, env2);
+  assert.equal(r.status, 200);
+  r = await call("contest/state", { method: "GET", cookie: ck1, ip, tz: "UTC" }, env2);
+  j = await r.json();
+  assert.equal(j.claim, null); assert.equal(j.winner.mine, true); assert.equal(j.hall.length, 0);
+  r = await call("contest/claim", { body: { contact: "01007654321" }, cookie: ck1, ip }, env2);
+  assert.equal(r.status, 403); assert.equal((await r.json()).error, "closed");
+  r = await call("contest/state", { method: "GET", cookie: ck2, ip, tz: "UTC" }, env2);
+  j = await r.json();
+  assert.equal(j.winner, null); assert.equal(j.hall.length, 0);
+  r = await call("admin/winner/flag", { body: { key: AKEY, cid: cid1, pid: "player1001", hidden: false, contacted: false }, ip }, env2);
+  assert.equal(r.status, 200);
+  r = await call("contest/state", { method: "GET", cookie: ck2, ip, tz: "UTC" }, env2);
+  j = await r.json();
+  assert.equal(j.winner.name, "أحمد"); assert.equal(j.hall.length, 1);
+  assert.equal((await DB2.prepare("SELECT status FROM contest_scores WHERE pid='player1001'").first()).status, "pending");
+  r = await call("admin/winner/flag", { body: { key: "wrong", cid: cid1, pid: "player1001", hidden: true }, ip: "203.0.113.9" }, env2);
+  assert.equal(r.status, 401);
 });
 
 test("تجاوز حد الطلبات: الطلب الـ21 على مسار الدخول بيرجع 429 ومعاه Retry-After", { skip: !hasSqlite }, async () => {

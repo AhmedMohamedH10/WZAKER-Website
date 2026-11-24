@@ -18,6 +18,7 @@ input[type=password]{text-align:center;direction:ltr}
 input[type=number],input[type=datetime-local]{direction:ltr;text-align:start;color-scheme:dark;width:100%}
 input[type=search],select{color-scheme:dark;width:100%}
 select{margin-bottom:12px;cursor:pointer}
+select option{background:var(--ink);color:var(--text,#e9fff4)}   /* القائمة المنسدلة: خلفية داكنة صريحة، وإلا بتظهر بيضا والكلام فاتح مش باين */
 .btn{min-height:46px;padding:0 20px;border-radius:14px;border:1px solid var(--line);background:transparent;color:var(--text);cursor:pointer;transition:background .2s,border-color .2s;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
 .btn:hover{background:rgba(var(--accent-rgb),.1);border-color:rgba(var(--accent-rgb),.4)}
 .btn.pri{background:var(--accent);border-color:var(--accent);color:var(--ink)}

@@ -68,10 +68,19 @@
       if (w.cv != null && w.cv < 0.1) fl.push("انتظام عالي جدًا");
       if (w.ipn > 0) fl.push(w.ipn + " حساب آخر من نفس الشبكة");
       if (w.banned && w.status !== "rejected") fl.push("المتسابق محظور");
+      var dn = /contacted/.test(w.status || ""), hid = /hidden/.test(w.status || "");
+      if (dn) fl.push("تم التواصل");
+      if (hid) fl.push("مخفي من اللوحة");
       if (fl.length) { var fb = el("div", "w-fl"); fl.forEach(function (t) { fb.appendChild(el("span", "chip wait", t)); }); c.appendChild(fb); }
       var f = el("div", "w-f"), id = el("button", "lnk", "نسخ المعرّف"); id.type = "button"; id.onclick = function () { copy(id, w.pid); };
       f.appendChild(id);
       if (w.status !== "rejected") {
+        var ct = el("button", "btn sm", dn ? "إعادة فتح التعديل" : "تم التواصل معه"); ct.type = "button";
+        ct.onclick = function () { act("admin/winner/flag", { cid: w.cid, pid: w.pid, contacted: !dn }); };
+        f.appendChild(ct);
+        var hd = el("button", "btn sm", hid ? "إظهار في اللوحة" : "إخفاء من اللوحة"); hd.type = "button";
+        hd.onclick = function () { if (hid || confirm("إخفاء اسم " + (w.name || "الفائز") + " من لوحة المكرَّمين؟")) act("admin/winner/flag", { cid: w.cid, pid: w.pid, hidden: !hid }); };
+        f.appendChild(hd);
         var rj = el("button", "btn sm danger", "استبعاد وحظر"); rj.type = "button";
         rj.onclick = function () { if (confirm("استبعاد " + (w.name || "الفائز") + " وحظره؟ الجولة هتتفتح تاني لباقي المتسابقين.")) act("admin/winner/reject", { cid: w.cid, pid: w.pid }); };
         f.appendChild(rj);

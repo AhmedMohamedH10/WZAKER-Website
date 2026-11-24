@@ -202,14 +202,14 @@ async function roundFor(db, tz, now) {
 }
 // الفايز = أول واحد وصل للهدف ومش مرفوض. فيه فايز واحد بس في الجولة (التحديث في sync بيمنع غيره)
 const hasWinner = async (db, cid) => !!await db.prepare("SELECT 1 AS x FROM contest_scores WHERE contest_id=? AND finished_at IS NOT NULL AND status<>'rejected' LIMIT 1").bind(cid).first();
-const WIN_SQL = "SELECT s.pid AS pid, p.name AS name, s.cc AS cc, s.finished_at AS fa, s.first_sync AS fs FROM contest_scores s JOIN players p ON p.id=s.pid WHERE s.contest_id=? AND s.finished_at IS NOT NULL AND s.status<>'rejected' ORDER BY s.finished_at ASC LIMIT 1";
-const myWin = (db, pid) => db.prepare("SELECT contest_id, contact, finished_at FROM contest_scores WHERE pid=? AND finished_at IS NOT NULL AND status<>'rejected' AND finished_at>? ORDER BY finished_at DESC LIMIT 1").bind(pid, Date.now() - CLAIM_MS).first();   // آخر فوز للاعب خلال 24 ساعة
+const WIN_SQL = "SELECT s.pid AS pid, p.name AS name, s.cc AS cc, s.finished_at AS fa, s.first_sync AS fs, s.status AS st FROM contest_scores s JOIN players p ON p.id=s.pid WHERE s.contest_id=? AND s.finished_at IS NOT NULL AND s.status<>'rejected' ORDER BY s.finished_at ASC LIMIT 1";
+const myWin = (db, pid) => db.prepare("SELECT contest_id, contact, finished_at, status FROM contest_scores WHERE pid=? AND finished_at IS NOT NULL AND status<>'rejected' AND finished_at>? ORDER BY finished_at DESC LIMIT 1").bind(pid, Date.now() - CLAIM_MS).first();   // آخر فوز للاعب خلال 24 ساعة
 // إشعار تليجرام لصاحب الموقع (اختياري): بيشتغل بس لو TELEGRAM_BOT_TOKEN و TELEGRAM_CHAT_ID متضافين. لو فشل ما بيأثرش على أي حاجة
 async function notify(env, text) {
   if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) return;
   try { await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ chat_id: env.TELEGRAM_CHAT_ID, text: String(text).slice(0, 1000) }) }); } catch (e) {}
 }
-const HALL_SQL = "SELECT p.name AS name, s.cc AS cc, s.finished_at AS fa, s.first_sync AS fs FROM contest_scores s JOIN players p ON p.id=s.pid WHERE s.finished_at IS NOT NULL AND s.status<>'rejected' ORDER BY s.finished_at DESC LIMIT 10";
+const HALL_SQL = "SELECT p.name AS name, s.cc AS cc, s.finished_at AS fa, s.first_sync AS fs FROM contest_scores s JOIN players p ON p.id=s.pid WHERE s.finished_at IS NOT NULL AND s.status<>'rejected' AND s.status NOT LIKE '%hidden%' ORDER BY s.finished_at DESC LIMIT 10";
 
 // ───── الهدف اليومي: كل يوم هدف عشوائي (الافتراضي بين 3000 و5000) على تسبيح الصفحة الرئيسية ─────
 // أي لاعب يبلغ الهدف اسمه بيتسجّل بوقت وصوله، والموقع بيعرض أول 3 بس، ويفضلوا ظاهرين لحد نهاية اليوم، وبعدها يجي هدف جديد وقايمة فاضية.
@@ -318,6 +318,16 @@ export async function onRequest({ request, env, params, waitUntil }) {
               const { nb, sr, sr2, ...o } = r;
               return { ...o, secs, rate: secs > 0 && r.target ? Math.round(r.target / secs * 10) / 10 : 0, cv: n >= 5 && avg > 0 ? Math.round(sd / avg * 100) / 100 : null, open: !r.contact && r.fa + CLAIM_MS > now && r.status !== "rejected" };
             }) });
+          }
+          if (route === "admin/winner/flag") {        // علامتين للفايز: hidden = يتشال من لوحة المكرَّمين، contacted = «تم التواصل» (بيقفل تعديل بياناته). بتتخزّن في عمود status من غير تغيير في الجداول
+            const cid = Math.floor(+b.cid), pid = okId(b.pid);
+            if (!(cid > 0) || !pid || ![b.hidden, b.contacted].some(v => typeof v === "boolean")) return J({ error: "id" }, 400);
+            const row = await db.prepare("SELECT status FROM contest_scores WHERE contest_id=? AND pid=? AND finished_at IS NOT NULL").bind(cid, pid).first();
+            if (!row || row.status === "rejected") return J({ error: "id" }, 404);
+            const f = new Set(String(row.status).split(" ").filter(x => x === "hidden" || x === "contacted"));
+            for (const k of ["hidden", "contacted"]) if (typeof b[k] === "boolean") b[k] ? f.add(k) : f.delete(k);
+            await db.prepare("UPDATE contest_scores SET status=? WHERE contest_id=? AND pid=? AND finished_at IS NOT NULL AND status<>'rejected'").bind([...f].join(" ") || "pending", cid, pid).run();
+            return J({ ok: true });
           }
           if (route === "admin/winner/reject") {     // استبعاد فايز (لو غش) وحظره. بعدها الجولة بتتفتح تاني لباقي اللاعبين لأن مفيش فايز مقبول
             const cid = Math.floor(+b.cid), pid = okId(b.pid);
@@ -537,6 +547,7 @@ export async function onRequest({ request, env, params, waitUntil }) {
         const contact = String(b.contact || "").replace(/[<>\u0000-\u001f]/g, "").replace(/\s+/g, " ").trim().slice(0, 80);
         if (contact.length < 5) return J({ error: "contact" }, 400);
         const w = await myWin(db, me.id); if (!w) return J({ error: "not-winner" }, 403);
+        if (/contacted/.test(w.status)) return J({ error: "closed" }, 403);   // الأدمن علّم «تم التواصل»: التعديل اتقفل
         await db.prepare("UPDATE contest_scores SET contact=? WHERE contest_id=? AND pid=?").bind(contact, w.contest_id, me.id).run();
         bg(notify(env, `📞 بيانات تواصل الفائز\nالاسم: ${me.name}\nالتواصل: ${contact}`));
         return J({ ok: true });
@@ -568,14 +579,14 @@ export async function onRequest({ request, env, params, waitUntil }) {
         db.prepare("SELECT p.name AS name, s.count AS c FROM contest_scores s JOIN players p ON p.id=s.pid WHERE s.contest_id=? AND s.finished_at IS NULL AND s.count>0 ORDER BY s.count DESC LIMIT 3").bind(c.id)];
       const wi = cur && cur.id !== c.id ? q.push(db.prepare(WIN_SQL).bind(cur.id)) - 1 : -1;   // الجولة الحالية اتكسبت: بنعرض فايزها وعدّ تنازلي للجاية
       const mi = me ? q.push(db.prepare("SELECT count,finished_at,status FROM contest_scores WHERE contest_id=? AND pid=?").bind(c.id, me.id)) - 1 : -1;
-      const rs = await db.batch(q), w = wi >= 0 ? rs[wi].results[0] : null, mine = mi >= 0 ? rs[mi].results[0] : null, win = me ? await myWin(db, me.id) : null;
+      const rs = await db.batch(q), w0 = wi >= 0 ? rs[wi].results[0] : null, w = w0 && /hidden/.test(w0.st) && !(me && w0.pid === me.id) ? null : w0, mine = mi >= 0 ? rs[mi].results[0] : null, win = me ? await myWin(db, me.id) : null;
       const dur = f => Math.max(0, f.fa - f.fs);
       return J({ on: true, now, tz, start: c.starts_at, end: c.ends_at, target: c.target, manual: !!c.manual,
         authOn: !!(env.GOOGLE_CLIENT_ID && env.SESSION_SECRET), captcha: !!env.TURNSTILE_SECRET,
         auth: !!me, named: !!(me && me.named), entered: !!mine,
         done: !!(mine && mine.finished_at), rej: !!(mine && mine.status === "rejected"),   // done من غير rej مستحيل: اللي بيوصل بيتقفل عليه الجولة
         me: mine ? Math.min(mine.count, c.target) : 0,
-        claim: win ? { c: !!win.contact, until: win.finished_at + CLAIM_MS } : null,        // لو اللاعب فاز في آخر 24 ساعة: هل سابق وسيلة تواصل، ولحد امتى يقدر
+        claim: win && !/contacted/.test(win.status) ? { c: !!win.contact, until: win.finished_at + CLAIM_MS } : null,        // لو اللاعب فاز في آخر 24 ساعة: هل سابق وسيلة تواصل، ولحد امتى يقدر
         winner: w ? { name: w.name, cc: w.cc, d: dur(w), t: cur.target, mine: !!me && w.pid === me.id } : null,
         top: rs[1].results.map(x => ({ name: x.name, c: Math.min(x.c, c.target) })),
         hall: rs[0].results.map(f => ({ n: f.name, cc: f.cc, t: f.fa, d: dur(f) })) });
