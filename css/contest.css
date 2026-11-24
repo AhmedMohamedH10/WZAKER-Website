@@ -17,9 +17,7 @@
 .ct-top li:last-child{border-bottom:0}
 .ct-top .rk{color:var(--dim)} .ct-top .ct{color:var(--accent);font-variant-numeric:tabular-nums}
 .ct-top .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* دايرة المسابقة: نفس دايرة التسبيح، وحلقة التقدّم بتتملي لحد الهدف */
-.ctap .beads .prog{fill:none;stroke:var(--accent);stroke-width:3;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;
-  transform:rotate(-90deg);transform-origin:center;transition:stroke-dashoffset .35s ease;filter:drop-shadow(0 0 5px rgba(var(--accent-rgb),.7))}
+/* دايرة المسابقة: نفس حلقة السبحة بتاعة الصفحة الرئيسية (الحبات من contest.js) */
 .ctap .tap-n{font-size:3rem}
 
 /* صندوق الحساب: صورة جوجل (بشكل أيقونة الموقع) + الاسم اللي اللاعب اختاره */

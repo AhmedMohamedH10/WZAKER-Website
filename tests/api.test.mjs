@@ -132,7 +132,7 @@ test("المسابقة كاملة: بداية يدوية، مشاركة، فوز
 
   r = await call("contest/state", { method: "GET", cookie: ck1, ip, tz: "UTC" }, env2);
   j = await r.json();
-  assert.equal(j.on, true); assert.equal(j.winner.mine, true);   // فايز الجولة اللي خلصت ظاهر، والعرض الحالي عدّ تنازلي للجولة الجاية
+  assert.equal(j.on, true); assert.equal(j.winner.mine, true); assert.equal(j.winner.t, 10);   // فايز الجولة اللي خلصت ظاهر، والعرض الحالي عدّ تنازلي للجولة الجاية
   assert.equal(j.entered, false); assert.equal(j.claim.c, false); // لسه ماكتبش وسيلة التواصل
 
   r = await call("contest/claim", { body: { contact: "01001234567" }, cookie: ck1, ip }, env2);

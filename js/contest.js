@@ -100,8 +100,25 @@
     if (t >= 60) return unit(m, "دقيقة واحدة", "دقيقتان", "دقائق", "دقيقة");
     return unit(Math.max(1, t), "ثانية واحدة", "ثانيتان", "ثوانٍ", "ثانية");
   }
+  // حلقة السبحة: نفس حلقة الصفحة الرئيسية (33 حبة بتنوّر مع العد وبتكمل دورة كل 33)
+  const CBEADS = [];
+  (() => {
+    const svg = $("cbeads"), NS = "http://www.w3.org/2000/svg", mk = (t, at) => { const e = document.createElementNS(NS, t); for (const k in at) e.setAttribute(k, at[k]); return e; };
+    svg.append(mk("circle", { class: "ring", cx: 120, cy: 120, r: 117 }));
+    for (let i = 0; i < 33; i++) {
+      const a = i / 33 * 2 * Math.PI - Math.PI / 2;
+      const c = mk("circle", { class: "b", cx: (120 + 104 * Math.cos(a)).toFixed(2), cy: (120 + 104 * Math.sin(a)).toFixed(2), r: i === 0 ? 4 : 3 });
+      c.style.setProperty("--i", i); CBEADS.push(c); svg.append(c);
+    }
+  })();
+  let clit = -1;
+  function paintBeads(n) {
+    const k = n > 0 && n % 33 === 0 ? 33 : n % 33;
+    if (k === clit) return; clit = k;
+    CBEADS.forEach((c, i) => { c.classList.toggle("on", i < k); c.classList.toggle("head", i === k - 1); });
+  }
   function paintCount() {
-    const c = cnt(); $("cn").textContent = num(c); $("cbar").style.strokeDashoffset = 100 - c / ST.target * 100;
+    const c = cnt(); $("cn").textContent = num(c); paintBeads(c);
   }
   function row(cls, cells) { const li = el("li", cls); for (const c of cells) li.append(c); return li; }
 
@@ -158,20 +175,20 @@
     if (!$("ct-done").hidden) {
       if (ST.rej) { $("ct-done-t").textContent = "استُبعدت نتيجتك بعد المراجعة."; $("ct-done-s").textContent = "نلتقي في الجولة القادمة بإذن الله."; }
       else {
-        $("ct-done-t").textContent = `مبارك! بلغتَ ${num(ST.target)} تسبيحة في ${dur(w.d)}`;
-        $("ct-done-s").textContent = "أنت صاحب «مَكْرُمَةُ ذِي الأَلْف» لهذه الجولة، وسيُخلَّد اسمك في لوحة المكرَّمين.";
+        $("ct-done-t").textContent = `مبارك! بلغتَ ${num(w.t || ST.target)} تسبيحة في ${dur(w.d)}`;
+        $("ct-done-s").textContent = "فُزتَ بمَكْرُمَةِ هذه الجولة، وسيُخلَّد اسمك في لوحة المكرَّمين.";
       }
     }
     const left = ST.claim ? ST.claim.until - t : 0, cl = ST.claim && left > 0 ? ST.claim : null; $("ct-claimp").hidden = !cl;
     if (cl) {
       const open = !cl.c || claimEdit, h = Math.floor(left / 3600e3), m = Math.floor(left % 3600e3 / 60e3);
       $("ct-claim").hidden = !open; $("ct-claimed").hidden = open; $("ct-claim-ed").hidden = open;
-      $("ct-claim-left").textContent = "المهلة المتبقية لتسجيل بياناتك: " + (h ? num(h) + " ساعة و" : "") + num(m) + " دقيقة.";
+      $("ct-claim-left").textContent = "المهلة المتبقية: " + (h ? num(h) + " ساعة و" : "") + num(m) + " دقيقة.";
     }
     if (!$("ct-end").hidden) {
       const c = region(w.cc);
       $("ct-win").textContent = `المُكرَّم في الجولة الماضية: ${w.name}`;
-      $("ct-win-s").textContent = `بلغ ${num(ST.target)} تسبيحة في ${dur(w.d)}` + (c ? " · " + c : "");
+      $("ct-win-s").textContent = `بلغ ${num(w.t || ST.target)} تسبيحة في ${dur(w.d)}` + (c ? " · " + c : "");
     }
     if (!$("ct-hall").hidden) {
       const ol = $("ct-hall-l"); ol.replaceChildren();

@@ -198,7 +198,7 @@
         <button type="button" id="ct-go">ادخل المسابقة</button>
       </div>
       <div class="ct-pane" id="ct-live" hidden>
-        <button class="tap idle ctap" id="ctap" type="button" aria-label="سبّح في المسابقة"><svg class="beads" viewBox="0 0 240 240" aria-hidden="true"><circle class="ring" cx="120" cy="120" r="117"/><circle class="prog" id="cbar" cx="120" cy="120" r="117" pathLength="100"/></svg><span class="glow" id="cglow" aria-hidden="true"></span><span class="tap-n" id="cn">٠</span><span class="tap-l" id="ct-of"></span></button>
+        <button class="tap idle ctap" id="ctap" type="button" aria-label="سبّح في المسابقة"><svg class="beads" id="cbeads" viewBox="0 0 240 240" aria-hidden="true"></svg><span class="glow" id="cglow" aria-hidden="true"></span><span class="tap-n" id="cn">٠</span><span class="tap-l" id="ct-of"></span></button>
         <ol class="ct-top" id="ct-top"></ol>
       </div>
       <div class="ct-pane" id="ct-done" hidden>
@@ -207,7 +207,7 @@
       </div>
       <div class="ct-pane" id="ct-claimp" hidden>
         <form class="ct-claim" id="ct-claim" hidden>
-          <p class="ct-k">اكتب وسيلة للتواصل (رقم واتساب أو حساب تواصل) لنتواصل معك بخصوص التكريم. لن تظهر لأحد غيرنا.</p>
+          <p class="ct-k">اكتب رقم واتساب أو حساب تواصل لنُكرمك، ولن يراه أحد غيرنا.</p>
           <p class="ct-note" id="ct-claim-left"></p>
           <div class="who"><input id="ct-contact" maxlength="80" autocomplete="off" placeholder="رقم أو حساب التواصل" aria-label="وسيلة التواصل"><button type="submit">إرسال</button></div>
         </form>

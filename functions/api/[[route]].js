@@ -576,7 +576,7 @@ export async function onRequest({ request, env, params, waitUntil }) {
         done: !!(mine && mine.finished_at), rej: !!(mine && mine.status === "rejected"),   // done من غير rej مستحيل: اللي بيوصل بيتقفل عليه الجولة
         me: mine ? Math.min(mine.count, c.target) : 0,
         claim: win ? { c: !!win.contact, until: win.finished_at + CLAIM_MS } : null,        // لو اللاعب فاز في آخر 24 ساعة: هل سابق وسيلة تواصل، ولحد امتى يقدر
-        winner: w ? { name: w.name, cc: w.cc, d: dur(w), mine: !!me && w.pid === me.id } : null,
+        winner: w ? { name: w.name, cc: w.cc, d: dur(w), t: cur.target, mine: !!me && w.pid === me.id } : null,
         top: rs[1].results.map(x => ({ name: x.name, c: Math.min(x.c, c.target) })),
         hall: rs[0].results.map(f => ({ n: f.name, cc: f.cc, t: f.fa, d: dur(f) })) });
     } else if (route === "daily/state") {           // الهدف اليومي للعامة: هدف النهاردة، أول 3 وصلوه، وتقدّم اللاعب (لو بعت id)
