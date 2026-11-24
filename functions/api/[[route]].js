@@ -579,7 +579,9 @@ export async function onRequest({ request, env, params, waitUntil }) {
         db.prepare("SELECT p.name AS name, s.count AS c FROM contest_scores s JOIN players p ON p.id=s.pid WHERE s.contest_id=? AND s.finished_at IS NULL AND s.count>0 ORDER BY s.count DESC LIMIT 3").bind(c.id)];
       const wi = cur && cur.id !== c.id ? q.push(db.prepare(WIN_SQL).bind(cur.id)) - 1 : -1;   // الجولة الحالية اتكسبت: بنعرض فايزها وعدّ تنازلي للجاية
       const mi = me ? q.push(db.prepare("SELECT count,finished_at,status FROM contest_scores WHERE contest_id=? AND pid=?").bind(c.id, me.id)) - 1 : -1;
-      const rs = await db.batch(q), w0 = wi >= 0 ? rs[wi].results[0] : null, w = w0 && /hidden/.test(w0.st) && !(me && w0.pid === me.id) ? null : w0, mine = mi >= 0 ? rs[mi].results[0] : null, win = me ? await myWin(db, me.id) : null;
+      const rs = await db.batch(q), w0 = wi >= 0 ? rs[wi].results[0] : null, isMe = !!(w0 && me && w0.pid === me.id),
+        w = w0 && (w0.fa + CLAIM_MS < now || (/hidden/.test(w0.st) && !isMe) || (isMe && /contacted/.test(w0.st))) ? null : w0,   // رسالة الفايز بتختفي بعد 24 ساعة من الفوز، أو أول ما الأدمن يعلّم «تم التواصل»، والمخفي مش بيظهر لغيره
+        mine = mi >= 0 ? rs[mi].results[0] : null, win = me ? await myWin(db, me.id) : null;
       const dur = f => Math.max(0, f.fa - f.fs);
       return J({ on: true, now, tz, start: c.starts_at, end: c.ends_at, target: c.target, manual: !!c.manual,
         authOn: !!(env.GOOGLE_CLIENT_ID && env.SESSION_SECRET), captcha: !!env.TURNSTILE_SECRET,

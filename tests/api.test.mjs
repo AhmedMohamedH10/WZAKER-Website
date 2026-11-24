@@ -165,18 +165,31 @@ test("المسابقة كاملة: بداية يدوية، مشاركة، فوز
   assert.equal(r.status, 200);
   r = await call("contest/state", { method: "GET", cookie: ck1, ip, tz: "UTC" }, env2);
   j = await r.json();
-  assert.equal(j.claim, null); assert.equal(j.winner.mine, true); assert.equal(j.hall.length, 0);
+  assert.equal(j.claim, null); assert.equal(j.winner, null); assert.equal(j.hall.length, 0);   // «تم التواصل»: رسالة الفايز وزر التعديل اختفوا
   r = await call("contest/claim", { body: { contact: "01007654321" }, cookie: ck1, ip }, env2);
   assert.equal(r.status, 403); assert.equal((await r.json()).error, "closed");
   r = await call("contest/state", { method: "GET", cookie: ck2, ip, tz: "UTC" }, env2);
   j = await r.json();
   assert.equal(j.winner, null); assert.equal(j.hall.length, 0);
-  r = await call("admin/winner/flag", { body: { key: AKEY, cid: cid1, pid: "player1001", hidden: false, contacted: false }, ip }, env2);
+  r = await call("admin/winner/flag", { body: { key: AKEY, cid: cid1, pid: "player1001", contacted: false }, ip }, env2);   // فتح التعديل تاني: الفايز يشوف فوزه، والمخفي لسه مخفي عن غيره
+  r = await call("contest/state", { method: "GET", cookie: ck1, ip, tz: "UTC" }, env2);
+  j = await r.json();
+  assert.equal(j.winner.mine, true); assert.equal(j.claim.c, true);
+  r = await call("contest/state", { method: "GET", cookie: ck2, ip, tz: "UTC" }, env2);
+  assert.equal((await r.json()).winner, null);
+  r = await call("admin/winner/flag", { body: { key: AKEY, cid: cid1, pid: "player1001", hidden: false }, ip }, env2);
   assert.equal(r.status, 200);
   r = await call("contest/state", { method: "GET", cookie: ck2, ip, tz: "UTC" }, env2);
   j = await r.json();
   assert.equal(j.winner.name, "أحمد"); assert.equal(j.hall.length, 1);
   assert.equal((await DB2.prepare("SELECT status FROM contest_scores WHERE pid='player1001'").first()).status, "pending");
+  // بعد 24 ساعة من الفوز: الرسالة تختفي من عند الكل، واللوحة الدائمة تفضل
+  await DB2.prepare("UPDATE contest_scores SET finished_at=finished_at-?1 WHERE pid='player1001'").bind(25 * 3600e3).run();
+  for (const ck of [ck1, ck2]) {
+    r = await call("contest/state", { method: "GET", cookie: ck, ip, tz: "UTC" }, env2);
+    j = await r.json();
+    assert.equal(j.winner, null); assert.equal(j.hall.length, 1);
+  }
   r = await call("admin/winner/flag", { body: { key: "wrong", cid: cid1, pid: "player1001", hidden: true }, ip: "203.0.113.9" }, env2);
   assert.equal(r.status, 401);
 });

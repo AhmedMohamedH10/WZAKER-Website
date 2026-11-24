@@ -35,10 +35,19 @@
     if (extra) r.appendChild(extra);
     return r;
   }
+  var SHOWHID = false, LASTW = null;
   function renderWinners(d) {
+    LASTW = d;
     var box = $("ad-wl"); box.textContent = "";
-    if (!d.winners.length) { box.appendChild(el("div", "empty", "لا يوجد فائزون بعد")); return; }
-    d.winners.forEach(function (w) {
+    var hidN = d.winners.filter(function (w) { return /hidden/.test(w.status || ""); }).length;
+    if (hidN) {   // المخفيون مش بيظهروا في القائمة، ومن هنا تقدر تعرضهم وترجّعهم
+      var tg = el("button", "lnk", SHOWHID ? "إخفاء المخفيين" : "عرض المخفيين (" + hidN + ")"); tg.type = "button"; tg.style.gridColumn = "1/-1";
+      tg.onclick = function () { SHOWHID = !SHOWHID; renderWinners(LASTW); };
+      box.appendChild(tg);
+    }
+    var list = d.winners.filter(function (w) { return SHOWHID || !/hidden/.test(w.status || ""); });
+    if (!list.length) { box.appendChild(el("div", "empty", hidN ? "كل الفائزين مخفيون" : "لا يوجد فائزون بعد")); return; }
+    list.forEach(function (w) {
       var c = el("article", "w" + (w.status === "rejected" ? " rej" : "")), h = el("div", "w-h");
       h.appendChild(el("div", "av", (w.name || "؟").charAt(0)));
       var n = el("div", "w-n"); n.appendChild(el("b", null, w.name || "بلا اسم"));
@@ -79,7 +88,7 @@
         ct.onclick = function () { act("admin/winner/flag", { cid: w.cid, pid: w.pid, contacted: !dn }); };
         f.appendChild(ct);
         var hd = el("button", "btn sm", hid ? "إظهار في اللوحة" : "إخفاء من اللوحة"); hd.type = "button";
-        hd.onclick = function () { if (hid || confirm("إخفاء اسم " + (w.name || "الفائز") + " من لوحة المكرَّمين؟")) act("admin/winner/flag", { cid: w.cid, pid: w.pid, hidden: !hid }); };
+        hd.onclick = function () { if (hid || confirm("إخفاء " + (w.name || "الفائز") + " من اللوحة ومن القائمة هنا؟ تقدر ترجّعه من «عرض المخفيين».")) act("admin/winner/flag", { cid: w.cid, pid: w.pid, hidden: !hid }); };
         f.appendChild(hd);
         var rj = el("button", "btn sm danger", "استبعاد وحظر"); rj.type = "button";
         rj.onclick = function () { if (confirm("استبعاد " + (w.name || "الفائز") + " وحظره؟ الجولة هتتفتح تاني لباقي المتسابقين.")) act("admin/winner/reject", { cid: w.cid, pid: w.pid }); };
