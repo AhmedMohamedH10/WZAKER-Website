@@ -1,6 +1,6 @@
 -- قاعدة جديدة خالص: شغّل الملف ده كله مرة واحدة في D1 Console (فيه كل حاجة لحد v8).
--- لو القاعدة قديمة (شغّلت v2 قبل كده): شغّل migrate-v3.sql ثم migrate-v4.sql ثم migrate-v5.sql ثم migrate-v6.sql ثم migrate-v7.sql ثم migrate-v8.sql.
-CREATE TABLE IF NOT EXISTS players(id TEXT PRIMARY KEY, name TEXT NOT NULL, total INTEGER NOT NULL DEFAULT 0, last_sync INTEGER NOT NULL, google_sub TEXT, avatar TEXT NOT NULL DEFAULT '', named INTEGER NOT NULL DEFAULT 0, sv INTEGER NOT NULL DEFAULT 0, banned INTEGER NOT NULL DEFAULT 0, email TEXT NOT NULL DEFAULT '');
+-- لو القاعدة قديمة (شغّلت v2 قبل كده): شغّل migrate-v3.sql ثم migrate-v4.sql ثم migrate-v5.sql ثم migrate-v6.sql ثم migrate-v7.sql ثم migrate-v8.sql ثم migrate-v9.sql.
+CREATE TABLE IF NOT EXISTS players(id TEXT PRIMARY KEY, name TEXT NOT NULL, total INTEGER NOT NULL DEFAULT 0, last_sync INTEGER NOT NULL, google_sub TEXT, avatar TEXT NOT NULL DEFAULT '', named INTEGER NOT NULL DEFAULT 0, sv INTEGER NOT NULL DEFAULT 0, banned INTEGER NOT NULL DEFAULT 0, email TEXT NOT NULL DEFAULT '', hide INTEGER NOT NULL DEFAULT 0);
 CREATE INDEX IF NOT EXISTS idx_total ON players(total DESC);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_gsub ON players(google_sub);
 CREATE TABLE IF NOT EXISTS room_scores(room TEXT NOT NULL, id TEXT NOT NULL, count INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(room, id));

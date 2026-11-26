@@ -8,7 +8,7 @@ const nameOk = n => n.length >= 2 && !RESERVED.test(n);
 const okId = s => (typeof s === "string" && /^[a-z0-9]{10}$/.test(s)) ? s : null;
 const okRoom = s => (typeof s === "string" && /^[a-z0-9]{4,10}$/.test(s)) ? s : null;
 const okAvatar = s => (typeof s === "string" && s.length <= 400 && /^https:\/\/[a-z0-9-]+\.googleusercontent\.com\//i.test(s)) ? s : "";
-const pub = p => ({ id: p.id, name: p.name, total: p.total, avatar: p.avatar || "", named: !!p.named });
+const pub = p => ({ id: p.id, name: p.name, total: p.total, avatar: p.avatar || "", named: !!p.named, hide: !!p.hide });
 
 // ───── جلسات: كوكي موقّع بـ HMAC. فيه رقم نسخة (sv) بنقارنه بالقاعدة، فنقدر نلغي أي جلسة (خروج / حظر) ─────
 const enc = new TextEncoder(), dec = new TextDecoder();
@@ -16,7 +16,10 @@ const b64u = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\
 const unb64u = s => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0));
 const hkey = (env, use) => crypto.subtle.importKey("raw", enc.encode(env.SESSION_SECRET), { name: "HMAC", hash: "SHA-256" }, false, [use]);
 const COOKIE = "__Host-wz_s", DAYS = 14;
-const PL = "id,name,total,avatar,named,sv,banned,google_sub,last_sync";
+let HIDE = null;                                                           // هل عمود hide موجود (migrate-v9)؟ لو لأ الموقع يكمّل عادي وخيار الإخفاء ما يشتغلش
+const PLf = () => "id,name,total,avatar,named,sv,banned,google_sub,last_sync" + (HIDE ? ",hide" : "");
+const HF = a => HIDE ? ` AND ${a}hide=0` : "";                              // اللي مخفي اسمه ما يظهرش في القوائم العامة
+async function hideInit(db) { if (HIDE === null) { try { await db.prepare("SELECT hide FROM players LIMIT 1").first(); HIDE = true; } catch (e) { HIDE = false; } } }
 const SYNC_RATE = 12, SYNC_CREDIT = 60e3;      // سقف تسبيح الحساب: 12 في الثانية كمتوسط، ورصيد أقصاه دقيقة (720) لو كان ساكت. الرصيد تراكمي مش بيتجدد مع كل طلب
 const MERGE_CAP = 5000;                        // أقصى عدّ بيتنقل من لاعب قديم من غير جوجل لما يسجّل دخوله (الحسابات دي اتقفلت وممكن تكون متلاعب فيها)
 async function makeCookie(env, p) {
@@ -33,7 +36,7 @@ async function sessionPlayer(request, env, db) {          // صف اللاعب �
   try {
     const ok = await crypto.subtle.verify("HMAC", await hkey(env, "verify"), unb64u(parts[3]), enc.encode(parts.slice(0, 3).join(".")));
     if (!ok) return null;
-    const p = await db.prepare(`SELECT ${PL} FROM players WHERE id=?`).bind(parts[0]).first();
+    const p = await db.prepare(`SELECT ${PLf()} FROM players WHERE id=?`).bind(parts[0]).first();
     return p && p.google_sub && !p.banned && p.sv === +parts[2] ? p : null;
   } catch (e) { return null; }
 }
@@ -202,14 +205,14 @@ async function roundFor(db, tz, now) {
 }
 // الفايز = أول واحد وصل للهدف ومش مرفوض. فيه فايز واحد بس في الجولة (التحديث في sync بيمنع غيره)
 const hasWinner = async (db, cid) => !!await db.prepare("SELECT 1 AS x FROM contest_scores WHERE contest_id=? AND finished_at IS NOT NULL AND status<>'rejected' LIMIT 1").bind(cid).first();
-const WIN_SQL = "SELECT s.pid AS pid, p.name AS name, s.cc AS cc, s.finished_at AS fa, s.first_sync AS fs, s.status AS st FROM contest_scores s JOIN players p ON p.id=s.pid WHERE s.contest_id=? AND s.finished_at IS NOT NULL AND s.status<>'rejected' ORDER BY s.finished_at ASC LIMIT 1";
+const WIN_SQL = "SELECT s.pid AS pid, p.name AS name, s.cc AS cc, s.finished_at AS fa, s.first_sync AS fs, s.status AS st, %HD% AS hd FROM contest_scores s JOIN players p ON p.id=s.pid WHERE s.contest_id=? AND s.finished_at IS NOT NULL AND s.status<>'rejected' ORDER BY s.finished_at ASC LIMIT 1";
 const myWin = (db, pid) => db.prepare("SELECT contest_id, contact, finished_at, status FROM contest_scores WHERE pid=? AND finished_at IS NOT NULL AND status<>'rejected' AND finished_at>? ORDER BY finished_at DESC LIMIT 1").bind(pid, Date.now() - CLAIM_MS).first();   // آخر فوز للاعب خلال 24 ساعة
 // إشعار تليجرام لصاحب الموقع (اختياري): بيشتغل بس لو TELEGRAM_BOT_TOKEN و TELEGRAM_CHAT_ID متضافين. لو فشل ما بيأثرش على أي حاجة
 async function notify(env, text) {
   if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) return;
   try { await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ chat_id: env.TELEGRAM_CHAT_ID, text: String(text).slice(0, 1000) }) }); } catch (e) {}
 }
-const HALL_SQL = "SELECT p.name AS name, s.cc AS cc, s.finished_at AS fa, s.first_sync AS fs FROM contest_scores s JOIN players p ON p.id=s.pid WHERE s.finished_at IS NOT NULL AND s.status<>'rejected' AND s.status NOT LIKE '%hidden%' ORDER BY s.finished_at DESC LIMIT 10";
+const HALL_SQL = "SELECT p.name AS name, s.cc AS cc, s.finished_at AS fa, s.first_sync AS fs FROM contest_scores s JOIN players p ON p.id=s.pid WHERE s.finished_at IS NOT NULL AND s.status<>'rejected' AND s.status NOT LIKE '%hidden%'%HF% ORDER BY s.finished_at DESC LIMIT 10";
 
 // ───── الهدف اليومي: كل يوم هدف عشوائي (الافتراضي بين 3000 و5000) على تسبيح الصفحة الرئيسية ─────
 // أي لاعب يبلغ الهدف اسمه بيتسجّل بوقت وصوله، والموقع بيعرض أول 3 بس، ويفضلوا ظاهرين لحد نهاية اليوم، وبعدها يجي هدف جديد وقايمة فاضية.
@@ -244,7 +247,7 @@ async function dailyAdd(db, pid, d, now) {                   // يضيف تسب�
     return { count: r.count, goal: g.goal, done: r.finished_at != null };
   } catch (e) { return null; }
 }
-const D_OK = "p.banned=0 AND p.name<>'' AND p.google_sub IS NOT NULL";                    // المحظور ومن غير اسم ما بيظهروش للعامة
+const D_OK_ = "p.banned=0 AND p.name<>'' AND p.google_sub IS NOT NULL";                    // المحظور ومن غير اسم ما بيظهروش للعامة
 
 // ───── لوحة الأدمن: مفتاح سري (ADMIN_KEY) بيتقارن بمقارنة ثابتة الزمن. لو المتغير مش موجود اللوحة مقفولة ─────
 async function adminOk(env, key) {
@@ -292,6 +295,7 @@ export async function onRequest({ request, env, params, waitUntil }) {
   const db = env.DB, url = new URL(request.url), route = [].concat(params.route || []).join("/");
   if (!db) return J({ error: "no-db" }, 503);
   try {
+    await hideInit(db);
     if (request.method === "POST") {
       // حماية CSRF: الطلبات لازم تيجي من نفس الموقع وبصيغة JSON
       if (request.headers.get("origin") !== url.origin) return J({ error: "origin" }, 403);
@@ -473,12 +477,12 @@ export async function onRequest({ request, env, params, waitUntil }) {
         if (!env.GOOGLE_CLIENT_ID || !env.SESSION_SECRET) return J({ error: "auth-off" }, 503);
         let g; try { g = await googleVerify(b.credential, env); } catch (e) { return J({ error: "token" }, 401); }
         const avatar = okAvatar(g.picture);
-        let p = await db.prepare(`SELECT ${PL} FROM players WHERE google_sub=?`).bind(g.sub).first();
+        let p = await db.prepare(`SELECT ${PLf()} FROM players WHERE google_sub=?`).bind(g.sub).first();
         if (p && p.banned) return J({ error: "banned" }, 403);
         if (p) {
           if (p.avatar !== avatar) { await db.prepare("UPDATE players SET avatar=? WHERE id=?").bind(avatar, p.id).run(); p.avatar = avatar; }
         } else {
-          const anon = id && await db.prepare(`SELECT ${PL} FROM players WHERE id=?`).bind(id).first();
+          const anon = id && await db.prepare(`SELECT ${PLf()} FROM players WHERE id=?`).bind(id).first();
           if (anon && !anon.google_sub && !anon.banned) {
             await db.prepare("UPDATE players SET google_sub=?1, avatar=?2, total=MIN(total,?3) WHERE id=?4").bind(g.sub, avatar, MERGE_CAP, id).run();
             p = { ...anon, avatar, total: Math.min(anon.total, MERGE_CAP) };
@@ -502,6 +506,13 @@ export async function onRequest({ request, env, params, waitUntil }) {
         if (!nameOk(name)) return J({ error: "name" }, 400);
         await db.prepare("UPDATE players SET name=?, named=1 WHERE id=?").bind(name, me.id).run();
         return J(pub({ ...me, name, named: 1 }));
+      }
+
+      if (route === "account/hide") {               // إخفاء اسم اللاعب من القوائم العامة (اختياري، يتغيّر في أي وقت)
+        const me = await sessionPlayer(request, env, db); if (!me) return J({ error: "auth" }, 401);
+        if (!HIDE || typeof b.hide !== "boolean") return J({ error: "hide" }, 400);
+        await db.prepare("UPDATE players SET hide=? WHERE id=?").bind(b.hide ? 1 : 0, me.id).run();
+        return J(pub({ ...me, hide: b.hide ? 1 : 0 }));
       }
 
       if (route === "contest/enter") {              // تأكيد المشاركة: جلسة + اسم + (Turnstile لو متفعّل). بعدها بس يقدر يسبّح في المسابقة
@@ -575,12 +586,12 @@ export async function onRequest({ request, env, params, waitUntil }) {
       const now = Date.now(), tz = tzOf(request, url.searchParams.get("tz")), { c, cur } = await roundFor(db, tz, now);
       if (!c) return J({ on: false, authOn: !!(env.GOOGLE_CLIENT_ID && env.SESSION_SECRET) });   // الجولات الأسبوعية موقوفة ومفيش جولة متجدولة
       const me = await sessionPlayer(request, env, db);
-      const q = [db.prepare(HALL_SQL),
-        db.prepare("SELECT p.name AS name, s.count AS c FROM contest_scores s JOIN players p ON p.id=s.pid WHERE s.contest_id=? AND s.finished_at IS NULL AND s.count>0 ORDER BY s.count DESC LIMIT 3").bind(c.id)];
-      const wi = cur && cur.id !== c.id ? q.push(db.prepare(WIN_SQL).bind(cur.id)) - 1 : -1;   // الجولة الحالية اتكسبت: بنعرض فايزها وعدّ تنازلي للجاية
+      const q = [db.prepare(HALL_SQL.replace("%HF%", HF("p."))),
+        db.prepare("SELECT p.name AS name, s.count AS c FROM contest_scores s JOIN players p ON p.id=s.pid WHERE s.contest_id=? AND s.finished_at IS NULL AND s.count>0 AND p.banned=0" + HF("p.") + " ORDER BY s.count DESC LIMIT 3").bind(c.id)];
+      const wi = cur && cur.id !== c.id ? q.push(db.prepare(WIN_SQL.replace("%HD%", HIDE ? "p.hide" : "0")).bind(cur.id)) - 1 : -1;   // الجولة الحالية اتكسبت: بنعرض فايزها وعدّ تنازلي للجاية
       const mi = me ? q.push(db.prepare("SELECT count,finished_at,status FROM contest_scores WHERE contest_id=? AND pid=?").bind(c.id, me.id)) - 1 : -1;
       const rs = await db.batch(q), w0 = wi >= 0 ? rs[wi].results[0] : null, isMe = !!(w0 && me && w0.pid === me.id),
-        w = w0 && (w0.fa + CLAIM_MS < now || (/hidden/.test(w0.st) && !isMe) || (isMe && /contacted/.test(w0.st))) ? null : w0,   // رسالة الفايز بتختفي بعد 24 ساعة من الفوز، أو أول ما الأدمن يعلّم «تم التواصل»، والمخفي مش بيظهر لغيره
+        w = w0 && (w0.fa + CLAIM_MS < now || ((/hidden/.test(w0.st) || w0.hd) && !isMe) || (isMe && /contacted/.test(w0.st))) ? null : w0,   // رسالة الفايز بتختفي بعد 24 ساعة من الفوز، أو أول ما الأدمن يعلّم «تم التواصل»، والمخفي مش بيظهر لغيره
         mine = mi >= 0 ? rs[mi].results[0] : null, win = me ? await myWin(db, me.id) : null;
       const dur = f => Math.max(0, f.fa - f.fs);
       return J({ on: true, now, tz, start: c.starts_at, end: c.ends_at, target: c.target, manual: !!c.manual,
@@ -598,8 +609,8 @@ export async function onRequest({ request, env, params, waitUntil }) {
       if (!g.on) return J({ on: false });
       const me = okId(url.searchParams.get("id")) || "";
       const [t, n, m] = await db.batch([
-        db.prepare(`SELECT p.name AS name, d.finished_at AS t, (p.id=?) AS me FROM daily_scores d JOIN players p ON p.id=d.pid WHERE d.day=? AND d.finished_at IS NOT NULL AND ${D_OK} ORDER BY d.finished_at ASC, d.pid ASC LIMIT 3`).bind(me, g.day),
-        db.prepare(`SELECT COUNT(*) AS n FROM daily_scores d JOIN players p ON p.id=d.pid WHERE d.day=? AND d.finished_at IS NOT NULL AND ${D_OK}`).bind(g.day),
+        db.prepare(`SELECT p.name AS name, d.finished_at AS t, (p.id=?) AS me FROM daily_scores d JOIN players p ON p.id=d.pid WHERE d.day=? AND d.finished_at IS NOT NULL AND ${D_OK_ + HF("p.")} ORDER BY d.finished_at ASC, d.pid ASC LIMIT 3`).bind(me, g.day),
+        db.prepare(`SELECT COUNT(*) AS n FROM daily_scores d JOIN players p ON p.id=d.pid WHERE d.day=? AND d.finished_at IS NOT NULL AND ${D_OK_}`).bind(g.day),
         db.prepare("SELECT count, finished_at FROM daily_scores WHERE day=? AND pid=?").bind(g.day, me)]);
       const mine = m.results[0];
       return J({ on: true, now, end: g.end, goal: g.goal, reached: n.results[0].n,
@@ -607,8 +618,8 @@ export async function onRequest({ request, env, params, waitUntil }) {
     } else if (route === "top") {                   // لوحة الترتيب: أعلى 3 فقط (عامة أو غرفة)
       const r = okRoom(url.searchParams.get("room")), me = okId(url.searchParams.get("id")) || "";
       const q = r
-        ? db.prepare("SELECT p.name AS name, s.count AS c, (p.id=?) AS me FROM room_scores s JOIN players p ON p.id=s.id WHERE s.room=? AND p.name<>'' AND p.banned=0 ORDER BY s.count DESC LIMIT 3").bind(me, r)
-        : db.prepare("SELECT name, total AS c, (id=?) AS me FROM players WHERE total>0 AND name<>'' AND banned=0 ORDER BY total DESC LIMIT 3").bind(me);
+        ? db.prepare("SELECT p.name AS name, s.count AS c, (p.id=?) AS me FROM room_scores s JOIN players p ON p.id=s.id WHERE s.room=? AND p.name<>'' AND p.banned=0" + HF("p.") + " ORDER BY s.count DESC LIMIT 3").bind(me, r)
+        : db.prepare("SELECT name, total AS c, (id=?) AS me FROM players WHERE total>0 AND name<>'' AND banned=0" + HF("") + " ORDER BY total DESC LIMIT 3").bind(me);
       return J({ top: (await q.all()).results });
     }
     return J({ error: "not-found" }, 404);

@@ -73,3 +73,31 @@ body.mn-lock{overflow:hidden}
   40%{box-shadow:0 0 38px 2px rgba(var(--accent-rgb),.16),inset 0 0 30px rgba(var(--accent-rgb),.06)}
   100%{box-shadow:0 0 0 0 rgba(var(--accent-rgb),0),inset 0 0 0 0 rgba(var(--accent-rgb),0)}}
 @media (prefers-reduced-motion:reduce){.mn,.mn-ov{transition:none}.pointed{animation:none}}
+
+/* صندوق الحساب: ترتيب بصري (صورة + اسم، ثم إخفاء الاسم، ثم الأزرار) */
+.mn-sec .acct-card{gap:0;padding:0;overflow:hidden}
+.mn-sec .acct-card>*{width:100%;margin:0}
+.mn-sec .acct-card .av{width:60px;height:60px;margin:18px 0 0 14px;margin-inline:18px 14px;margin-block:18px 14px;display:grid}
+.mn-sec .acct-card{display:grid;grid-template-columns:auto 1fr;align-items:center}
+.mn-sec .acct-card>.av{grid-column:1;width:60px}
+.mn-sec .acct-card>.acct-id{grid-column:2;width:auto;padding:18px 0 14px;padding-inline-end:18px;gap:2px}
+.mn-sec .acct-card>.acct-hide,.mn-sec .acct-card>.acct-act,.mn-sec .acct-card>.acct-name{grid-column:1/-1;width:auto}
+.mn-sec .acct-hide{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 18px;min-height:56px;border-top:1px solid var(--line)}
+.mn-sec .ah-t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.mn-sec .ah-t b{font-size:1rem;font-weight:600;color:var(--text)}
+.mn-sec .sw{flex:none;position:relative;width:50px;height:30px;padding:0;border-radius:99px;cursor:pointer;background:rgba(255,255,255,.08);border:1px solid var(--line);transition:background .2s ease,border-color .2s ease;box-shadow:none}
+.mn-sec .sw i{position:absolute;top:3px;inset-inline-start:3px;width:22px;height:22px;border-radius:50%;background:var(--dim);transition:inset-inline-start .2s ease,background .2s ease}
+.mn-sec .sw.on{background:rgba(var(--accent-rgb),.3);border-color:rgba(var(--accent-rgb),.6)}
+.mn-sec .sw.on i{inset-inline-start:23px;background:var(--accent)}
+.mn-sec .sw:focus-visible,.mn-sec .av:focus-visible{outline:2px solid rgba(var(--accent-rgb),.6);outline-offset:2px}
+.mn-sec .acct-card>.acct-act{padding:14px 18px 18px;border-top:1px solid var(--line);display:flex}
+.mn-sec .acct-card>.acct-name{padding:16px 18px 18px}
+
+/* الصورة زرّ: لما الاسم مخفي، الضغط عليها يبدّل الصورة المجهولة */
+.mn-sec .av{padding:0;border:0;font:inherit;cursor:default;-webkit-tap-highlight-color:transparent}
+.mn-sec .av:disabled{opacity:1;color:inherit}
+.mn-sec .av .av-sw{display:none;position:absolute;inset-inline-end:3px;bottom:3px;width:22px;height:22px;border-radius:50%;place-items:center;background:rgba(2,12,8,.78);border:1px solid rgba(var(--accent-rgb),.55);backdrop-filter:blur(4px)}
+.mn-sec .av .av-sw svg{width:13px;height:13px;fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mn-sec .av.tap{cursor:pointer;box-shadow:0 0 0 1px rgba(var(--accent-rgb),.5),0 0 18px rgba(var(--accent-rgb),.25);transition:transform .15s ease}
+.mn-sec .av.tap .av-sw{display:grid}
+.mn-sec .av.tap:active{transform:scale(.95)}

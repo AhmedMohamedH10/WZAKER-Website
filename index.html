@@ -39,7 +39,7 @@
 <link rel="stylesheet" href="css/style.css?v=16">
 <link rel="stylesheet" href="css/challenge.css?v=33">
 <link rel="stylesheet" href="css/contest.css?v=15">
-<link rel="stylesheet" href="css/menu.css?v=10">
+<link rel="stylesheet" href="css/menu.css?v=11">
 </head>
 <body>
 <canvas id="bg" aria-hidden="true"></canvas>
@@ -49,8 +49,12 @@
   <div class="mn-top"><span class="mn-logo"><img class="wz-logo" src="assets/img/wordmark-v2.webp" alt="وذكر" width="912" height="547" draggable="false" decoding="async"><b class="sr">القائمة</b></span><button type="button" class="mn-x" id="mn-x" aria-label="إغلاق"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
   <section class="mn-sec"><div class="acct" id="acct" hidden>
       <div class="acct-card" id="acct-card" hidden>
-        <span class="av" aria-hidden="true"><b id="av-l"></b><img id="av-img" alt="" width="56" height="56" referrerpolicy="no-referrer" hidden></span>
+        <button type="button" class="av" id="av-btn" aria-label="تغيير الصورة" title="تغيير الصورة" disabled><b id="av-l" aria-hidden="true"></b><img id="av-img" alt="" width="56" height="56" referrerpolicy="no-referrer" hidden><i class="av-sw" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 8h13M13.5 4.5 17 8l-3.5 3.5M20 16H7M10.5 12.5 7 16l3.5 3.5"/></svg></i></button>
         <div class="acct-id"><b class="acct-nm" id="acct-nm"></b><span class="acct-s">حساب جوجل</span></div>
+        <div class="acct-hide" id="acct-hide">
+          <div class="ah-t"><b>إخفاء الاسم</b></div>
+          <button type="button" class="sw" id="acct-sw" role="switch" aria-checked="false" aria-label="إخفاء الاسم"><i></i></button>
+        </div>
         <div class="acct-act" id="acct-act"><button type="button" id="acct-ed">تعديل الاسم</button><button type="button" id="acct-out">خروج</button></div>
         <form class="acct-name" id="acct-name" hidden>
           <label class="nm-l" id="acct-hint" for="acct-in">الاسم الظاهر</label>
@@ -236,7 +240,7 @@
 <script src="js/bg.js?v=14" defer></script>
 <script src="js/main.js?v=4" defer></script>
 <script src="js/challenge.js?v=24" defer></script>
-<script src="js/contest.js?v=19" defer></script>
+<script src="js/contest.js?v=20" defer></script>
 <script src="js/menu.js?v=7" defer></script>
 </body>
 </html>
