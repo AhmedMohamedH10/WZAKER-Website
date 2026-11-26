@@ -56,7 +56,7 @@
   let ctWas = false;
   addEventListener("wz-ct", () => {
     const sw = WZ_ct.on !== ctWas; ctWas = WZ_ct.on;
-    if (TAPL) TAPL.textContent = WZ_ct.on ? "مَكْرُمَةُ ذِي الأَلْف" : TAPL0;
+    if (TAPL) { TAPL.textContent = WZ_ct.on ? "مَكْرُمَةُ ذِي الأَلْف" : TAPL0; TAPL.classList.toggle("ct", !!WZ_ct.on); }
     showCount();
     if (sw && !reduce && $("n").animate) { try { $("n").animate([{ opacity: 0, transform: "scale(.88)" }, { opacity: 1, transform: "scale(1)" }], { duration: 700, easing: "ease-out" }); } catch (_) {} }   // رجوع/تصفير ناعم
   });

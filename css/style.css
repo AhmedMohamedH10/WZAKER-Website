@@ -46,7 +46,7 @@ h1 img{display:block;margin:0 auto;width:min(88vw,620px);height:auto}
 .tag{margin-top:10px;color:var(--dim);font-size:1.05rem}
 
 /* ───── التحميل ───── */
-h2{font-family:var(--font-first);font-weight:400;font-size:1.5rem;text-align:center;margin:6vh 0 3vh;color:var(--text)}
+h2{font-family:var(--font-main);font-weight:400;font-size:1.5rem;text-align:center;margin:6vh 0 3vh;color:var(--text)}
 .downloads{display:flex;flex-wrap:wrap;justify-content:center;gap:34px 44px}
 .dl{display:flex;flex-direction:column;align-items:center;gap:14px;text-decoration:none;color:var(--text);
   -webkit-tap-highlight-color:transparent}
@@ -97,7 +97,7 @@ button.dl{background:none;border:0;padding:0;font:inherit;cursor:pointer}
 
 .soon{margin:9vh auto 6vh;max-width:520px;text-align:center;padding:22px 24px;border:1px solid var(--line);
   border-radius:28px;background:rgba(var(--accent-rgb),.03)}
-.soon b{font-family:var(--font-first);font-weight:400;color:var(--accent);font-size:1.2rem}
+.soon b{font-family:var(--font-main);font-weight:400;color:var(--accent);font-size:1.2rem}
 .soon p{color:var(--dim);margin-top:6px}
 footer{position:relative;z-index:1;max-width:520px;margin:0 auto;text-align:center;color:var(--dim);font-size:.85rem;padding:28px clamp(10px,3vw,20px) 5vh;border-top:1px solid var(--line)}
 footer a{color:var(--accent);text-decoration:none}
@@ -105,7 +105,7 @@ footer .fn{display:flex;justify-content:center;flex-wrap:nowrap;gap:0 clamp(8px,
 footer .fn a{white-space:nowrap}
 footer .fn a{color:var(--dim)}
 footer .fn a:hover,footer .fn a:focus-visible{color:var(--accent)}
-footer .by{margin-top:4px;font-family:var(--font-first);font-size:.9rem}
+footer .by{margin-top:4px;font-family:var(--font-main);font-size:.9rem}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
 /* مديا فاير: القايمة بتنزل تحت دايرة مديا فاير بالظبط، النسختين فوق بعض */
