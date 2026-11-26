@@ -38,7 +38,7 @@
 <link rel="preload" href="assets/fonts/HailElasticLight.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css?v=17">
 <link rel="stylesheet" href="css/challenge.css?v=35">
-<link rel="stylesheet" href="css/contest.css?v=17">
+<link rel="stylesheet" href="css/contest.css?v=18">
 <link rel="stylesheet" href="css/menu.css?v=12">
 </head>
 <body>
@@ -204,8 +204,11 @@
       </div>
       <div class="ct-pane" id="ct-live" hidden>
         <p class="ct-k ct-hype">المسابقة بدأت، هيّا إلى التسبيح وسابق الآن!</p>
-        <button type="button" id="ct-now">سبّح الآن</button>
+        <div class="ct-btns"><button type="button" id="ct-now">سبّح الآن</button><button type="button" id="ct-leave" class="ct-sec">خروج من المسابقة</button></div>
         <ol class="ct-top" id="ct-top"></ol>
+      </div>
+      <div class="ct-pane" id="ct-left" hidden>
+        <div class="ct-btns"><button type="button" id="ct-back">العودة للمسابقة</button></div>
       </div>
       <div class="ct-pane" id="ct-done" hidden>
         <p class="ct-win" id="ct-done-t"></p>
@@ -242,7 +245,7 @@
 <script src="js/main.js?v=4" defer></script>
 <script src="js/fw.js?v=2" defer></script>
 <script src="js/challenge.js?v=26" defer></script>
-<script src="js/contest.js?v=21" defer></script>
+<script src="js/contest.js?v=22" defer></script>
 <script src="js/menu.js?v=7" defer></script>
 </body>
 </html>

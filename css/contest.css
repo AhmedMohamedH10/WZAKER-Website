@@ -64,3 +64,12 @@
 @media (hover:hover){.ct-pane>button:not(:disabled):hover{background:rgba(var(--accent-rgb),.08);border-color:var(--accent)}}
 
 .ct-hype{color:var(--accent);font-size:1.15rem;font-weight:600}
+
+/* أزرار المسابقة: أعرض (سبّح الآن + خروج من المسابقة جنب بعض) */
+.ct-pane>button{min-width:min(100%,220px)}
+.ct-btns{display:flex;gap:12px;width:100%;max-width:420px}
+.ct-btns button{flex:1;min-width:0;font:inherit;font-size:1.02rem;color:var(--accent);background:rgba(var(--accent-rgb),.1);border:1px solid rgba(var(--accent-rgb),.5);border-radius:999px;padding:13px 18px;cursor:pointer;transition:background .3s ease,border-color .3s ease,color .3s ease}
+.ct-btns button.ct-sec{color:var(--dim);background:transparent;border-color:var(--line)}
+@media (hover:hover){.ct-btns button:hover{background:rgba(var(--accent-rgb),.16);border-color:var(--accent)}.ct-btns button.ct-sec:hover{color:var(--text);background:rgba(255,255,255,.04)}}
+.ct-btns button:focus-visible{outline:2px solid rgba(var(--accent-rgb),.6);outline-offset:2px}
+@media (max-width:380px){.ct-btns{flex-direction:column}}

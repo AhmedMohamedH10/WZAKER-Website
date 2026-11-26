@@ -107,7 +107,11 @@
     } catch (e) {}
   }
   const now = () => Date.now() + offset;
-  const isLive = () => ST && ST.auth && ST.named && ST.entered && !ST.done && now() >= ST.start && now() < ST.end;
+  const inRound = () => ST && ST.auth && ST.named && ST.entered && !ST.done && now() >= ST.start && now() < ST.end;
+  // «خروج من المسابقة»: محلي على الجهاز لهذه الجولة بس (بنفس موعد بدايتها)، والتسبيح يرجع لأرقامك العادية. «العودة للمسابقة» تكمّل من حيث وقفت
+  const LEFT = "wz_ct_left";
+  const isLeft = () => { try { return !!ST && localStorage.getItem(LEFT) === String(ST.start); } catch (e) { return false; } };
+  const isLive = () => !!inRound() && !isLeft();
   const cnt = () => ST ? Math.min(ST.target, ST.me + pending) : 0;
 
   // عدّاد مبسّط: أيام ← (آخر يوم) ساعات ← (آخر ساعة) دقائق ← (آخر دقيقة) ثواني
@@ -125,7 +129,7 @@
     const live = !!isLive();
     WZ_ct.on = live; WZ_ct.count = live ? cnt() : 0;
     dispatchEvent(new Event("wz-ct"));
-    if (wasLive && !live) setTimeout(() => $("contest").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }), 750);   // المكرمة خلصت: ننزل للفايز
+    if (wasLive && !live && !(inRound() && isLeft())) setTimeout(() => $("contest").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }), 750);   // المكرمة خلصت: ننزل للفايز
     wasLive = live;
   }
   function row(cls, cells) { const li = el("li", cls); for (const c of cells) li.append(c); return li; }
@@ -161,6 +165,7 @@
     $("ct-name").hidden = !(ST.auth && !ST.named);
     $("ct-enter").hidden = !needEnter;
     $("ct-live").hidden = !isLive();
+    $("ct-left").hidden = !(inRound() && isLeft());
     $("ct-done").hidden = !(ST.rej || (w && w.mine));
     $("ct-end").hidden = !w || w.mine;
     $("ct-hall").hidden = !(ST.hall && ST.hall.length);
@@ -248,6 +253,15 @@
     setTimeout(() => { try { tp.focus({ preventScroll: true }); } catch (_) {} }, reduce ? 0 : 450);
   }
   $("ct-now").addEventListener("click", toTap);
+  $("ct-leave").addEventListener("click", async () => {
+    try { await flush(); } catch (e) {}                     // نبعت اللي لسه ما اتبعتش قبل الخروج
+    pending = 0; try { localStorage.setItem(LEFT, String(ST.start)); } catch (e) {}
+    say("ct-msg", ""); paint();
+  });
+  $("ct-back").addEventListener("click", () => {
+    try { localStorage.removeItem(LEFT); } catch (e) {}
+    say("ct-msg", ""); paint(); toTap();
+  });
 
   $("ct-claim").addEventListener("submit", async e => {
     e.preventDefault();
