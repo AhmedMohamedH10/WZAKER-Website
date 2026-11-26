@@ -51,6 +51,7 @@
   const TAPL = document.querySelector("#tap .tap-l"), TAPL0 = TAPL ? TAPL.textContent : "";
   const showCount = () => {
     const n = WZ_ct.on ? WZ_ct.count : S.total + S.pending; $("n").textContent = num(n); paintBeads(n);
+    const mine = $("acct-cnt"); if (mine) mine.textContent = num(S.total + S.pending);   // «عدد تسبيحاتي» في صندوق الحساب: إجمالي تسبيحك حتى لو اسمك مخفي
     if (D.on) paintDaily();
   };
   let ctWas = false;

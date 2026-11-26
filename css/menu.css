@@ -81,7 +81,7 @@ body.mn-lock{overflow:hidden}
 .mn-sec .acct-card{display:grid;grid-template-columns:auto 1fr;align-items:center}
 .mn-sec .acct-card>.av{grid-column:1;width:60px}
 .mn-sec .acct-card>.acct-id{grid-column:2;width:auto;padding:18px 0 14px;padding-inline-end:18px;gap:2px}
-.mn-sec .acct-card>.acct-hide,.mn-sec .acct-card>.acct-act,.mn-sec .acct-card>.acct-name{grid-column:1/-1;width:auto}
+.mn-sec .acct-card>.acct-cnt,.mn-sec .acct-card>.acct-hide,.mn-sec .acct-card>.acct-act,.mn-sec .acct-card>.acct-name{grid-column:1/-1;width:auto}
 .mn-sec .acct-hide{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 18px;min-height:56px;border-top:1px solid var(--line)}
 .mn-sec .ah-t{display:flex;flex-direction:column;gap:2px;min-width:0}
 .mn-sec .ah-t b{font-size:1rem;font-weight:600;color:var(--text)}
@@ -101,3 +101,8 @@ body.mn-lock{overflow:hidden}
 .mn-sec .av.tap{cursor:pointer;box-shadow:0 0 0 1px rgba(var(--accent-rgb),.5),0 0 18px rgba(var(--accent-rgb),.25);transition:transform .15s ease}
 .mn-sec .av.tap .av-sw{display:grid}
 .mn-sec .av.tap:active{transform:scale(.95)}
+
+/* عدد تسبيحاتي: صف في صندوق الحساب (الاسم على اليمين والرقم على الشمال) */
+.mn-sec .acct-cnt{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 18px;min-height:52px;border-top:1px solid var(--line)}
+.mn-sec .acct-cnt span{font-size:1rem;font-weight:600;color:var(--text)}
+.mn-sec .acct-cnt b{font-weight:500;font-size:1.25rem;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums;direction:ltr;text-shadow:0 0 14px rgba(var(--accent-rgb),.25)}

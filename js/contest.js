@@ -46,6 +46,7 @@
   function setUser(u) { user = u; editing = false; dispatchEvent(new CustomEvent("wz-login", { detail: u })); acct(); loadState(); }
 
   // ───── صندوق الحساب: الصورة + الاسم اللي اللاعب كتبه (مش اسم جوجل) ─────
+  const avPick = () => { try { const v = localStorage.getItem("wz_av"); return v === "m" || v === "f" ? v : "g"; } catch (e) { return "g"; } };   // الصورة في الوضع العادي: g = صورة جوجل/الحرف، m/f = الصورتين الجاهزتين
   const anonPick = () => { try { return localStorage.getItem("wz_anon") === "f" ? "f" : "m"; } catch (e) { return "m"; } };
   function acct() {
     $("acct").hidden = !authOn; $("gate-g").hidden = !authOn || !!user;
@@ -57,12 +58,12 @@
     $("acct-nm").textContent = user.name || "بلا اسم";
     $("av-l").textContent = [...(user.name || "؟")][0];
     const img = $("av-img"); img.hidden = true;
-    const anon = !!user.hide, ch = anonPick();
-    $("av-l").hidden = anon;
-    if (anon) { img.onload = null; img.onerror = null; img.src = "assets/img/anon-" + ch + ".webp"; img.hidden = false; }
+    const anon = !!user.hide, ch = anonPick(), av = avPick(), pic = anon ? ch : av;   // مخفي: صورة مجهولة دايمًا. عادي: صورة جوجل أو واحدة من الجاهزتين
+    $("av-l").hidden = pic !== "g";
+    if (pic !== "g") { img.onload = null; img.onerror = null; img.src = "assets/img/anon-" + pic + ".webp"; img.hidden = false; }
     else if (user.avatar) { img.onload = () => { img.hidden = false; }; img.onerror = () => { img.hidden = true; }; img.src = user.avatar; }
     $("acct-sw").setAttribute("aria-checked", anon ? "true" : "false"); $("acct-sw").classList.toggle("on", anon);
-    $("av-btn").disabled = !anon; $("av-btn").classList.toggle("tap", anon);
+    $("av-btn").disabled = false; $("av-btn").classList.add("tap");   // الصورة تتغيّر في الحالتين
     $("acct-hide").hidden = !user.named;
     $("acct-hint").textContent = user.named ? "اكتب الاسم الجديد." : "الاسم الذي سيظهر للآخرين.";
     $("acct-ed").hidden = !user.named || editing;
@@ -74,8 +75,12 @@
     try { const u = await api("account/hide", { hide: want }); user = { ...user, hide: !!u.hide }; acct(); dispatchEvent(new CustomEvent("wz-login", { detail: user })); }
     catch (e) { say("acct-msg", "تعذّر حفظ الإعداد، حاول مرة أخرى."); }
   });
-  // الصورة المجهولة: اضغط على الأيقونة نفسها (وهي مخفية الاسم) تبدّل بين الصورتين
-  $("av-btn").addEventListener("click", () => { if (!user || !user.hide) return; try { localStorage.setItem("wz_anon", anonPick() === "f" ? "m" : "f"); } catch (e) {} acct(); });
+  // الصورة: اضغط عليها تتغيّر. الاسم مخفي: تبدّل بين الصورتين المجهولتين. الاسم ظاهر: صورة جوجل ← الأولى ← التانية ← ترجع لجوجل
+  $("av-btn").addEventListener("click", () => {
+    if (!user) return;
+    try { if (user.hide) localStorage.setItem("wz_anon", anonPick() === "f" ? "m" : "f"); else localStorage.setItem("wz_av", { g: "m", m: "f", f: "g" }[avPick()]); } catch (e) {}
+    acct();
+  });
   $("acct-ed").addEventListener("click", () => { editing = true; acct(); $("acct-in").value = user.name || ""; $("acct-in").focus(); });
   $("acct-cancel").addEventListener("click", () => { editing = false; say("acct-msg", ""); acct(); });
   $("ct-name-go").addEventListener("click", () => { window.WZ_menu ? WZ_menu.open() : 0; setTimeout(() => $("acct-in").focus({ preventScroll: true }), 400); });
