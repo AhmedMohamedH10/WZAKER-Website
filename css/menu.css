@@ -1,10 +1,11 @@
 /* القائمة الجانبية (ثلاث شرط) — تصميم هادي: خلفية سادة، فواصل خفيفة، أيقونات خافتة */
-.mn-btn{position:fixed;top:14px;right:14px;z-index:50;width:42px;height:42px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
-  padding:0;cursor:pointer;color:var(--text);background:rgba(9,15,11,.8);border:1px solid var(--line);
-  transition:background .25s ease,border-color .25s ease,color .25s ease;-webkit-tap-highlight-color:transparent}
-.mn-btn i{display:block;width:17px;height:1.5px;border-radius:2px;background:currentColor;opacity:.85}
-.mn-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-@media (hover:hover){.mn-btn:hover{background:rgba(var(--accent-rgb),.08);border-color:rgba(var(--accent-rgb),.35);color:var(--accent)}}
+.mn-btn{position:fixed;top:14px;right:14px;z-index:50;width:44px;height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+  padding:0;cursor:pointer;color:var(--accent);background:none;border:0;border-radius:12px;filter:drop-shadow(0 1px 4px rgba(0,0,0,.55));
+  transition:opacity .25s ease,transform .25s ease;-webkit-tap-highlight-color:transparent}
+.mn-btn i{display:block;width:22px;height:2px;border-radius:2px;background:currentColor}
+.mn-btn:active{transform:scale(.92)}
+.mn-btn:focus-visible{outline:2px solid rgba(var(--accent-rgb),.6);outline-offset:2px}
+@media (hover:hover){.mn-btn:hover{opacity:.8}}
 .mn-ov{position:fixed;inset:0;z-index:55;background:rgba(0,0,0,.5);opacity:0;transition:opacity .3s ease}
 .mn-ov.on{opacity:1}
 .mn{position:fixed;top:0;right:0;bottom:0;z-index:60;width:min(380px,90vw);display:flex;flex-direction:column;gap:18px;padding:18px 18px 28px;overflow-y:auto;
@@ -64,8 +65,11 @@
 .mn-i:active{background:rgba(var(--accent-rgb),.09)}
 .mn-i:focus-visible{outline:2px solid rgba(var(--accent-rgb),.5);outline-offset:-2px}
 body.mn-lock{overflow:hidden}
-/* التأشير على العنصر بعد الضغط على أيقونته: حلقة رفيعة تظهر وتخفت مرة واحدة */
-.pointed{animation:wz-point 1.4s ease-out 1;position:relative}
+/* التأشير على العنصر بعد الضغط على أيقونته: وميض ناعم وخفيف يظهر ويخفت مرة واحدة (من غير إطار) */
+.pointed{animation:wz-point 1.9s ease-in-out 1;position:relative}
 #daily .dy-card.pointed,#lb.pointed,#contest .ct-card.pointed,#download .downloads.pointed{border-radius:24px}
-@keyframes wz-point{0%{box-shadow:0 0 0 0 rgba(var(--accent-rgb),0)}30%{box-shadow:0 0 0 2px rgba(var(--accent-rgb),.4)}100%{box-shadow:0 0 0 2px rgba(var(--accent-rgb),0)}}
-@media (prefers-reduced-motion:reduce){.mn,.mn-ov{transition:none}.pointed{animation:none;box-shadow:0 0 0 2px rgba(var(--accent-rgb),.35)}}
+@keyframes wz-point{
+  0%{box-shadow:0 0 0 0 rgba(var(--accent-rgb),0),inset 0 0 0 0 rgba(var(--accent-rgb),0)}
+  40%{box-shadow:0 0 38px 2px rgba(var(--accent-rgb),.16),inset 0 0 30px rgba(var(--accent-rgb),.06)}
+  100%{box-shadow:0 0 0 0 rgba(var(--accent-rgb),0),inset 0 0 0 0 rgba(var(--accent-rgb),0)}}
+@media (prefers-reduced-motion:reduce){.mn,.mn-ov{transition:none}.pointed{animation:none}}

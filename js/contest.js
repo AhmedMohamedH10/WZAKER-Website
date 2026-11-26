@@ -80,7 +80,7 @@
     try {
       const s = await api("contest/state");
       if (s.authOn !== undefined) authOn = s.authOn;
-      if (!s.on) { $("contest").hidden = true; $("hall").hidden = true; ST = null; return; }
+      if (!s.on) { $("contest").hidden = true; $("hall").hidden = true; ST = null; paintCount(); return; }
       ST = s; offset = s.now - Date.now();
       if (!s.auth && user) { user = null; dispatchEvent(new Event("wz-nosession")); acct(); }
       if (s.auth && user && user.named !== s.named) { user.named = s.named; acct(); }
@@ -100,25 +100,14 @@
     if (t >= 60) return unit(m, "دقيقة واحدة", "دقيقتان", "دقائق", "دقيقة");
     return unit(Math.max(1, t), "ثانية واحدة", "ثانيتان", "ثوانٍ", "ثانية");
   }
-  // حلقة السبحة: نفس حلقة الصفحة الرئيسية (33 حبة بتنوّر مع العد وبتكمل دورة كل 33)
-  const CBEADS = [];
-  (() => {
-    const svg = $("cbeads"), NS = "http://www.w3.org/2000/svg", mk = (t, at) => { const e = document.createElementNS(NS, t); for (const k in at) e.setAttribute(k, at[k]); return e; };
-    svg.append(mk("circle", { class: "ring", cx: 120, cy: 120, r: 117 }));
-    for (let i = 0; i < 33; i++) {
-      const a = i / 33 * 2 * Math.PI - Math.PI / 2;
-      const c = mk("circle", { class: "b", cx: (120 + 104 * Math.cos(a)).toFixed(2), cy: (120 + 104 * Math.sin(a)).toFixed(2), r: i === 0 ? 4 : 3 });
-      c.style.setProperty("--i", i); CBEADS.push(c); svg.append(c);
-    }
-  })();
-  let clit = -1;
-  function paintBeads(n) {
-    const k = n > 0 && n % 33 === 0 ? 33 : n % 33;
-    if (k === clit) return; clit = k;
-    CBEADS.forEach((c, i) => { c.classList.toggle("on", i < k); c.classList.toggle("head", i === k - 1); });
-  }
+  // العدّاد بيظهر على السبحة الأساسية نفسها (مفيش عدّاد هنا): نبلّغها بالرقم ووضع المكرمة
+  let wasLive = false;
   function paintCount() {
-    const c = cnt(); $("cn").textContent = num(c); paintBeads(c);
+    const live = !!isLive();
+    WZ_ct.on = live; WZ_ct.count = live ? cnt() : 0;
+    dispatchEvent(new Event("wz-ct"));
+    if (wasLive && !live) setTimeout(() => $("contest").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }), 750);   // المكرمة خلصت: ننزل للفايز
+    wasLive = live;
   }
   function row(cls, cells) { const li = el("li", cls); for (const c of cells) li.append(c); return li; }
 
@@ -134,7 +123,7 @@
   }
   $("ct-go").addEventListener("click", async () => {
     $("ct-go").disabled = true; say("ct-msg", "");
-    try { await api("contest/enter", { ts: tsTok }); loadState(); }
+    try { await api("contest/enter", { ts: tsTok }); await loadState(); if (isLive()) { say("ct-msg", "سبّح الآن!"); toTap(); } }
     catch (e) {
       say("ct-msg", e.code === "captcha" ? "تعذّر التحقق من أنك إنسان، حاول مرة أخرى." : "حدث خطأ، حاول مرة أخرى.");
       if (window.turnstile && tsId >= 0) turnstile.reset(tsId); tsTok = ""; $("ct-go").disabled = !!ST.captcha;
@@ -168,10 +157,10 @@
       $("ct-ts").hidden = !ST.captcha;
     }
     if (!$("ct-live").hidden) {
-      $("ct-of").textContent = "من " + num(ST.target); paintCount();
       const ol = $("ct-top"); ol.replaceChildren();
       (ST.top || []).forEach((p, i) => ol.append(row("", [el("span", "rk", num(i + 1)), el("span", "nm", p.name), el("span", "ct", num(p.c))])));
     }
+    paintCount();
     if (!$("ct-done").hidden) {
       if (ST.rej) { $("ct-done-t").textContent = "استُبعدت نتيجتك بعد المراجعة."; $("ct-done-s").textContent = "نلتقي في الجولة القادمة بإذن الله."; }
       else {
@@ -187,7 +176,7 @@
     }
     if (!$("ct-end").hidden) {
       const c = region(w.cc);
-      $("ct-win").textContent = `المُكرَّم في الجولة الماضية: ${w.name}`;
+      $("ct-win").textContent = `انتهت المسابقة، لقد فاز ${w.name} في مكرمة ذي الألف`;
       $("ct-win-s").textContent = `بلغ ${num(w.t || ST.target)} تسبيحة في ${dur(w.d)}` + (c ? " · " + c : "");
     }
     if (!$("ct-hall").hidden) {
@@ -200,13 +189,13 @@
     }
   }
   setInterval(() => {
-    if (!ST || !seen || document.hidden) return;
+    if (!ST || !(seen || ST.entered) || document.hidden) return;
     const st = now() >= ST.start;
     if (!st) { ST._s = false; paint(); }                                   // العدّ التنازلي بيتحدّث كل ثانية
-    else if (ST._s === false) { ST._s = true; paint(); loadState(); }      // الجولة بدأت: نجيب الحالة الجديدة (من غير فايز الجولة اللي فاتت)
+    else if (ST._s === false) { ST._s = true; paint(); loadState().then(() => { if (isLive()) say("ct-msg", "بدأت المسابقة، سبّح الآن!"); }); }      // الجولة بدأت: نجيب الحالة الجديدة (من غير فايز الجولة اللي فاتت)
   }, 1000);
   new IntersectionObserver(en => { seen = en[0].isIntersecting; if (seen) loadState(); }).observe($("contest"));
-  setInterval(() => { if (seen && !document.hidden) loadState(); }, 5000);
+  setInterval(() => { if ((seen || isLive()) && !document.hidden) loadState(); }, 3000);
 
   // ───── التسبيح في المسابقة ─────
   async function flush() {
@@ -227,23 +216,19 @@
   }
   setInterval(flush, 1500);
   addEventListener("pagehide", flush);
-  $("ctap").addEventListener("click", e => {
-    if (!e.isTrusted) return;                                // ضغطة مولّدة بسكربت (مش ضغطة حقيقية) ما تتعدّش
+  // السبحة الأساسية هي اللي بتتضغط، والمسابقة بتعدّ ضغطاتها في عدّاد لوحده
+  addEventListener("wz-tap", () => {
     const t = performance.now(); if (t - lastTap < 115 || !isLive() || cnt() >= ST.target) return; lastTap = t;
     pending++; paintCount();
-    try { navigator.vibrate && navigator.vibrate(8); } catch (_) {}
     if (cnt() >= ST.target) flush();
-    if (reduce || !$("ctap").animate) return;
-    try {
-      const g = $("cglow").getBoundingClientRect();
-      $("cglow").style.setProperty("--px", (e.detail ? e.clientX - g.left : g.width / 2) + "px");
-      $("cglow").style.setProperty("--py", (e.detail ? e.clientY - g.top : g.height / 2) + "px");
-      $("cglow").animate([{ opacity: 1 }, { opacity: 0 }], { duration: 700, easing: "ease-out" });
-      $("ctap").animate([{ transform: "scale(.94)" }, { transform: "scale(1)" }], { duration: 200, easing: "ease-out", pseudoElement: "::before" });
-      $("cn").animate([{ transform: "scale(1.09)" }, { transform: "scale(1)" }], { duration: 180, easing: "ease-out" });
-    } catch (_) {}
   });
-  $("ctap").addEventListener("keydown", e => { if (e.repeat) e.preventDefault(); });
+  // "سبّح الآن": يطلّع المستخدم للسبحة الأساسية فوق
+  function toTap() {
+    const tp = $("tap"); if (!tp) return;
+    tp.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+    setTimeout(() => { try { tp.focus({ preventScroll: true }); } catch (_) {} }, reduce ? 0 : 450);
+  }
+  $("ct-now").addEventListener("click", toTap);
 
   $("ct-claim").addEventListener("submit", async e => {
     e.preventDefault();

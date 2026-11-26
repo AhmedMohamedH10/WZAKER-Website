@@ -35,7 +35,7 @@
   }
   function point(el) {
     el.classList.remove("pointed"); void el.offsetWidth; el.classList.add("pointed");
-    setTimeout(() => el.classList.remove("pointed"), 1600);
+    setTimeout(() => el.classList.remove("pointed"), 2000);
   }
   function go(key) {
     const el = q(T[key][0]); if (!el) return;

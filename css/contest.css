@@ -18,7 +18,9 @@
 .ct-top .rk{color:var(--dim)} .ct-top .ct{color:var(--accent);font-variant-numeric:tabular-nums}
 .ct-top .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* دايرة المسابقة: نفس حلقة السبحة بتاعة الصفحة الرئيسية (الحبات من contest.js) */
-.ctap .tap-n{font-size:3rem}
+.ct-me{display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1.4}
+.ct-me b{font-weight:400;font-size:3rem;color:var(--text);font-variant-numeric:tabular-nums}
+.ct-me span{color:var(--dim);font-size:.9rem}
 
 /* صندوق الحساب: صورة جوجل (بشكل أيقونة الموقع) + الاسم اللي اللاعب اختاره */
 .acct{display:flex;flex-direction:column;align-items:center;gap:12px;margin:26px auto 0;max-width:420px;width:100%}

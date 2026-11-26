@@ -46,10 +46,20 @@
     if (k === lit) return; lit = k;
     BEADS.forEach((c, i) => { c.classList.toggle("on", i < k); c.classList.toggle("head", i === k - 1); });
   }
+  // وضع المكرمة: لما تبدأ بتتصفّر السبحة وتعدّ للمكرمة بس (contest.js بيحدّث WZ_ct)، ولما تخلص بترجع لأرقامك القديمة
+  window.WZ_ct = { on: false, count: 0 };
+  const TAPL = document.querySelector("#tap .tap-l"), TAPL0 = TAPL ? TAPL.textContent : "";
   const showCount = () => {
-    const n = S.total + S.pending; $("n").textContent = num(n); paintBeads(n);
+    const n = WZ_ct.on ? WZ_ct.count : S.total + S.pending; $("n").textContent = num(n); paintBeads(n);
     if (D.on) paintDaily();
   };
+  let ctWas = false;
+  addEventListener("wz-ct", () => {
+    const sw = WZ_ct.on !== ctWas; ctWas = WZ_ct.on;
+    if (TAPL) TAPL.textContent = WZ_ct.on ? "مَكْرُمَةُ ذِي الأَلْف" : TAPL0;
+    showCount();
+    if (sw && !reduce && $("n").animate) { try { $("n").animate([{ opacity: 0, transform: "scale(.88)" }, { opacity: 1, transform: "scale(1)" }], { duration: 700, easing: "ease-out" }); } catch (_) {} }   // رجوع/تصفير ناعم
+  });
 
   let view = S.room ? "room" : "global";
   function render() {
@@ -78,8 +88,9 @@
   $("tap").addEventListener("click", e => {
     const t = performance.now(); if (t - lastCount < MIN_GAP) return; lastCount = t;
     const first = Date.now() - lastTap > 60000; lastTap = Date.now(); if (first) ping();
-    S.pending++; save(); showCount(); wake(); nudge();
-    const done = (S.total + S.pending) % 33 === 0;
+    if (WZ_ct.on) { if (e.isTrusted) dispatchEvent(new CustomEvent("wz-tap")); wake(); }   // أثناء المكرمة: الضغطة للمكرمة بس، وأرقامك القديمة محفوظة
+    else { S.pending++; save(); showCount(); wake(); nudge(); }
+    const done = (WZ_ct.on ? WZ_ct.count : S.total + S.pending) % 33 === 0;
     try { navigator.vibrate && navigator.vibrate(done ? [30, 50, 30] : 8); } catch (_) {}
     if (reduce || !$("tap").animate) return;
     try {
