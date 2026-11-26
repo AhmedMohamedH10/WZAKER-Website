@@ -18,11 +18,23 @@ const TURNSTILE_SITEKEY = "";
 (function () {
   try {
     var n = navigator, c = n.connection || {}, de = document.documentElement, bad = false;
-    try { bad = localStorage.getItem("noblur") === "1"; } catch (e) {}
+    var dbg = location.hash === "#blur";   /* افتح الموقع بـ #blur في آخر الرابط: بيصفّر قفل البلور القديم ويعرض سبب التفعيل/العدم */
+    try { if (dbg) localStorage.removeItem("noblur"); bad = localStorage.getItem("noblur") === "1"; } catch (e) {}
+    var badge = function (msg) {
+      if (!dbg) return;
+      addEventListener("DOMContentLoaded", function () {
+        var d = document.getElementById("blurdbg") || document.body.appendChild(document.createElement("div"));
+        d.id = "blurdbg"; d.textContent = msg;
+        d.style.cssText = "position:fixed;left:8px;right:8px;bottom:8px;z-index:99999;padding:8px 10px;border-radius:10px;background:#000c;color:#3dffa3;font:12px/1.5 monospace;direction:ltr;text-align:left";
+      });
+    };
+    var info = "cores=" + n.hardwareConcurrency + " mem=" + n.deviceMemory + " coarse=" + matchMedia("(pointer: coarse)").matches +
+      " saveData=" + !!c.saveData + " net=" + (c.effectiveType || "?") + " reduceMotion=" + matchMedia("(prefers-reduced-motion: reduce)").matches;
     var ok = !bad && matchMedia("(pointer: coarse)").matches && !c.saveData && !/(^|-)2g$/.test(c.effectiveType || "") &&
       !matchMedia("(prefers-reduced-motion: reduce)").matches && (n.hardwareConcurrency || 0) >= 6 && (n.deviceMemory === undefined || n.deviceMemory >= 2);
-    if (!ok) return;
+    if (!ok) { badge("BLUR OFF (device check) | " + info + (bad ? " | noblur flag set" : "")); return; }
     de.classList.add("blur-ok");
+    badge("BLUR ON, measuring... | " + info);
     /* الحارس: بعد ثانيتين من التحميل، بنعدّ 90 فريم. لو المتوسط أقل من ~40fps أو فيه تهنيج كبير، البلور يتقفل */
     var guard = function () {
       var t0 = 0, last = 0, frames = 0, worst = 0;
@@ -33,10 +45,12 @@ const TURNSTILE_SITEKEY = "";
         last = t; frames++;
         if (frames < 90) { requestAnimationFrame(step); return; }
         var fps = (frames - 1) / ((t - t0) / 1000);
-        if (fps < 40 || worst > 220) {
+        var off = fps < 40 || worst > 220;
+        if (off) {
           de.classList.remove("blur-ok");
           try { localStorage.setItem("noblur", "1"); } catch (e) {}
         }
+        badge((off ? "BLUR OFF (slow: " : "BLUR ON (smooth: ") + fps.toFixed(0) + "fps, worst frame " + worst.toFixed(0) + "ms) | " + info);
       };
       requestAnimationFrame(step);
     };
