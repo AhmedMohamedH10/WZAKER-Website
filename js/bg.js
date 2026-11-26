@@ -84,10 +84,39 @@
     return s;
   }
 
+
+  /* الموبايل: الدوران بـ CSS animation على الـ compositor (مش JS)، فمستحيل يتعلّق أو يرجع يلف من جديد بعد السكرول.
+     الرسم بيحصل مرة واحدة بس، وبعدها مفيش أي شغل على الـ main thread */
+  let layer = null;
+  function buildTouch() {
+    if (layer) layer.remove();
+    layer = document.createElement("div");
+    layer.id = "bgm"; layer.setAttribute("aria-hidden", "true");
+    layer.style.cssText = `position:fixed;left:0;top:0;width:${W}px;height:${H}px;z-index:0;pointer-events:none;overflow:hidden;contain:strict`;
+    for (const g of rosettes) {
+      if (g.glow) {
+        const gl = document.createElement("div");
+        gl.style.cssText = `position:absolute;left:${g.x - g.r}px;top:${g.y - g.r}px;width:${g.r * 2}px;height:${g.r * 2}px;border-radius:50%;background:radial-gradient(circle,rgba(${RGB},.07),rgba(${RGB},0) 70%)`;
+        layer.appendChild(gl);
+      }
+      for (const [img, sp, k] of [[g.o, g.s1, 1], [g.i, g.s2, 1.3]]) {
+        const h = img.width / dpr / 2, el = img;
+        el.style.cssText = `position:absolute;left:${g.x - h}px;top:${g.y - h}px;width:${h * 2}px;height:${h * 2}px;` +
+          `will-change:transform;backface-visibility:hidden;transform:translateZ(0);` +
+          (reduce ? "" : `animation:bgspin ${Math.round(1 / Math.abs(sp))}s linear infinite${sp < 0 ? " reverse" : ""};`);
+        layer.appendChild(el);
+      }
+    }
+    document.body.insertBefore(layer, document.body.firstChild);
+    layer.style.opacity = "0"; layer.style.transition = "opacity 1.6s ease";
+    requestAnimationFrame(() => requestAnimationFrame(() => { layer.style.opacity = "1"; }));
+  }
+
   function size() {
     W = innerWidth; dpr = Math.min(touch ? 1.5 : 2, devicePixelRatio || 1);
     /* الموبايل: الارتفاع بيثبت على أكبر ارتفاع للشاشة (والشريط مخفي) علشان الدواير ما تتمطّش ولا تتغير وقت السكرول */
     H = touch ? Math.max(innerHeight, Math.min(screen.height || innerHeight, Math.round(innerHeight * 1.25))) : innerHeight;
+    if (touch) { cv.style.display = "none"; build(); buildTouch(); return; }
     cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
     cv.style.cssText = `position:fixed;left:0;top:0;right:auto;bottom:auto;width:${W}px;height:${H}px`;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -162,7 +191,7 @@
     const dt = Math.min(.05, (ts - last) / 1000 || .016); last = ts;
     draw(ts, dt);
   }
-  function start() { if (!raf && !reduce) { last = performance.now(); if (!born) born = last; raf = requestAnimationFrame(loop); } }
+  function start() { if (!touch && !raf && !reduce) { last = performance.now(); if (!born) born = last; raf = requestAnimationFrame(loop); } }
   function stop() { cancelAnimationFrame(raf); raf = 0; }
 
   addEventListener("pointermove", e => {
