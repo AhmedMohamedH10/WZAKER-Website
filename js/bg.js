@@ -132,8 +132,9 @@
     const Hb = touch ? Math.min(innerHeight, Math.round(H * .9)) : H;
     const defs = [
       { x: 13 * v, y: 11 * v, r: 25 * v, n: 8,  d: .6, a: .17, glow: false, s1: .006, s2: -.010 },
-      { x: W - 7 * v, y: Hb - 23 * v, r: 17 * v, n: 12, d: 1, a: .20, glow: true,  s1: -.007, s2: .012 },
-      { x: .22 * W + 9 * v, y: Hb - 6 * v, r: 11 * v, n: 8, d: .8, a: .15, glow: false, s1: .008, s2: -.013 }
+      /* الموبايل: الحلقة 3 في زاوية الشمال تحت بالظبط، والحلقة 2 على اليمين في نص الشاشة رأسيًا (الكمبيوتر زي ما هو) */
+      { x: W - 7 * v, y: touch ? Hb * .5 : Hb - 23 * v, r: 17 * v, n: 12, d: 1, a: .20, glow: true,  s1: -.007, s2: .012 },
+      { x: touch ? 3 * v : .22 * W + 9 * v, y: touch ? Hb - 3 * v : Hb - 6 * v, r: 11 * v, n: 8, d: .8, a: .15, glow: false, s1: .008, s2: -.013 }
     ];
     rosettes = defs.map((g, i) => ({
       hx: g.x, hy: g.y, x: g.x, y: g.y, d: g.d, r: g.r, glow: g.glow, a: g.a,
