@@ -159,7 +159,11 @@ footer .by{margin-top:4px;font-family:var(--font-first);font-size:.9rem}
 
 /* الموبايل: من غير بلور (backdrop-filter) خالص، لأنه كان بيعيد حساب الخلفية كل فريم ويعلّق السكرول. بدله تعتيم خفيف ثابت */
 @media (pointer:coarse){
-  *,*::before,*::after{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+  html:not(.blur-ok) *,html:not(.blur-ok) *::before,html:not(.blur-ok) *::after{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+  /* الموبايلات القوية بس (class blur-ok من config.js): بلور خفيف 4px بدل التعتيم، والضعيفة تفضل من غير بلور */
+  html.blur-ok .mf,html.blur-ok .disc,html.blur-ok .board,html.blur-ok .dy-card,html.blur-ok .ct-card,html.blur-ok #lb,html.blur-ok .sec-ic,
+  html.blur-ok .ch input,html.blur-ok .ch button:not(.tap){-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+  html.blur-ok .verse::before,html.blur-ok .tag::before,html.blur-ok h2::before,html.blur-ok .app-name::before,html.blur-ok .app-ver::before,html.blur-ok .dk-cur::before,html.blur-ok .hello::before{-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
   .disc{background:linear-gradient(rgba(var(--accent-rgb),.035),rgba(var(--accent-rgb),.035)),rgba(9,15,11,.72)}
   .verse::before,.tag::before,h2::before,.app-name::before,.app-ver::before,.dk-cur::before,.hello::before{background:rgba(9,15,11,.5)}
 }

@@ -128,10 +128,12 @@
   /* نفس أماكن الحلقات الأصلية (ركن فوق شمال، يمين تحت، تحت شمال)، بس زخارف بدل دوائر فاضية */
   function build() {
     const v = Math.min(W, H) / 100 * (touch ? 1.25 : 1);
+    /* الموبايل: الحلقات اللي تحت بتتحط نسبةً لارتفاع الشاشة وشريط المتصفح ظاهر، علشان ما تختفيش تحت الحافة */
+    const Hb = touch ? Math.min(innerHeight, Math.round(H * .9)) : H;
     const defs = [
       { x: 13 * v, y: 11 * v, r: 25 * v, n: 8,  d: .6, a: .17, glow: false, s1: .006, s2: -.010 },
-      { x: W - 7 * v, y: H - 23 * v, r: 17 * v, n: 12, d: 1, a: .20, glow: true,  s1: -.007, s2: .012 },
-      { x: .22 * W + 9 * v, y: H - 3 * v, r: 11 * v, n: 8, d: .8, a: .15, glow: false, s1: .008, s2: -.013 }
+      { x: W - 7 * v, y: Hb - 23 * v, r: 17 * v, n: 12, d: 1, a: .20, glow: true,  s1: -.007, s2: .012 },
+      { x: .22 * W + 9 * v, y: Hb - 6 * v, r: 11 * v, n: 8, d: .8, a: .15, glow: false, s1: .008, s2: -.013 }
     ];
     rosettes = defs.map((g, i) => ({
       hx: g.x, hy: g.y, x: g.x, y: g.y, d: g.d, r: g.r, glow: g.glow, a: g.a,
