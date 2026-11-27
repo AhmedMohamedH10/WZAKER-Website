@@ -10,6 +10,7 @@
 .ct-tiles{margin-top:6px}
 #ct-in:not([hidden]){margin-top:6px;padding:4px 16px;border-radius:999px;border:1px solid rgba(var(--accent-rgb),.3);background:rgba(var(--accent-rgb),.08);color:var(--accent);font-size:.85rem;line-height:1.7}
 .ct-win{font-family:var(--font-main);font-size:1.35rem;color:var(--text);line-height:1.8;text-wrap:balance}
+.ct-wname{color:var(--accent)}
 .ct-claim{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%}
 .ct-claim .who{margin-top:4px;width:100%}
 .ct-top{list-style:none;padding:0;margin:8px 0 0;width:100%;max-width:340px}

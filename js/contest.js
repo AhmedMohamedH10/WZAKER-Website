@@ -211,7 +211,7 @@
     }
     if (!$("ct-end").hidden) {
       const c = region(w.cc);
-      $("ct-win").textContent = `انتهت المسابقة، لقد فاز ${w.name} في مكرمة ذي الألف`;
+      $("ct-win").replaceChildren("انتهت المسابقة، لقد فاز ", el("span", "ct-wname", w.name), " في مكرمة ذي الألف");
       $("ct-win-s").textContent = `بلغ ${num(w.t || ST.target)} تسبيحة في ${dur(w.d)}` + (c ? " · " + c : "");
     }
     if (!$("ct-hall").hidden) {
