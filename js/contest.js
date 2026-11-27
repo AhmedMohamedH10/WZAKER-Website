@@ -8,6 +8,7 @@
   const num = n => Number(n).toLocaleString("ar-EG").replace(/\u066C/g, ",");
   const CID = typeof GOOGLE_CLIENT_ID !== "undefined" ? GOOGLE_CLIENT_ID : "";
   const TSK = typeof TURNSTILE_SITEKEY !== "undefined" ? TURNSTILE_SITEKEY : "";
+  let hashGo = location.hash === "#contest";   // الرابط جاي بـ #contest (من التطبيق مثلًا): ننزل للقسم أول ما يظهر، لأنه مخفي لحد ما الحالة توصل
   let user = null, authOn = false, editing = false, claimEdit = false, ST = null, offset = 0, pending = 0, busy = false, lastTap = 0, seen = false, tsId = null, tsTok = "";
 
   const TZ = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch (e) { return ""; } })();   // السيرفر بيعتمد على توقيت Cloudflare، ده احتياطي بس
@@ -104,6 +105,7 @@
       if (!s.auth && user) { user = null; dispatchEvent(new Event("wz-nosession")); acct(); }
       if (s.auth && user && user.named !== s.named) { user.named = s.named; acct(); }
       $("contest").hidden = false; loadGsi(); paint();
+      if (hashGo) { hashGo = false; setTimeout(() => $("contest").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }), 350); }
     } catch (e) {}
   }
   const now = () => Date.now() + offset;
