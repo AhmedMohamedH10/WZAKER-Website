@@ -96,6 +96,14 @@
   });
 
   // ───── حالة المسابقة ─────
+  // النزول لقسم المسابقة (رابط #contest): مرة بنعومة، وبعد ثانية نتأكد إننا وصلنا فعلًا (الصفحة ممكن تتحرك أثناء تحميل الخطوط والصور)
+  function goContest() {
+    const el = $("contest");
+    if (!el || el.hidden) return;
+    el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    setTimeout(() => { if (Math.abs(el.getBoundingClientRect().top) > 150) el.scrollIntoView({ behavior: "auto", block: "start" }); }, 1100);
+  }
+  addEventListener("hashchange", () => { if (location.hash === "#contest") goContest(); });   // الصفحة مفتوحة أصلًا والرابط اتفتح عليها
   async function loadState() {
     try {
       const s = await api("contest/state");
@@ -104,8 +112,9 @@
       ST = s; offset = s.now - Date.now();
       if (!s.auth && user) { user = null; dispatchEvent(new Event("wz-nosession")); acct(); }
       if (s.auth && user && user.named !== s.named) { user.named = s.named; acct(); }
-      $("contest").hidden = false; loadGsi(); paint();
-      if (hashGo) { hashGo = false; setTimeout(() => $("contest").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }), 350); }
+      $("contest").hidden = false;
+      if (hashGo) { hashGo = false; setTimeout(goContest, 400); }   // قبل loadGsi/paint: لو أي واحدة فيهم فشلت (الأخطاء هنا بتتبلع) النزول يحصل برضه
+      loadGsi(); paint();
     } catch (e) {}
   }
   const now = () => Date.now() + offset;
