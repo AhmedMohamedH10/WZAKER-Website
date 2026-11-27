@@ -52,5 +52,18 @@
   mn.addEventListener("click", e => { const b = e.target.closest(".mn-i"); if (b) go(b.dataset.go); });
   // الشعار: منع السحب وقائمة الحفظ (ردع للنسخ السهل، مش حماية مطلقة)
   for (const ev of ["dragstart", "contextmenu"]) document.addEventListener(ev, e => { if (e.target.closest && e.target.closest(".wz-logo,.mn-logo,h1,.app-stage")) e.preventDefault(); });
+  // رابط خارجي (من تطبيق الأندرويد مثلاً): wzaker.site/#contest أو ?go=contest ينزل للقسم ويأشّر عليه.
+  // القسم (المسابقة / الهدف اليومي) بيبقى مخفي لحد ما السيرفر يرد، فالمتصفح لوحده مش بيلاقيه وقت التحميل، فبنستنى ظهوره (لحد ٨ ثواني) وبعدين ننزل له
+  (() => {
+    let key = location.hash.slice(1);
+    if (!T[key]) key = new URLSearchParams(location.search).get("go") || "";
+    if (!T[key]) return;
+    let tries = 0;
+    const t = setInterval(() => {
+      const sec = q(T[key][1]);
+      if (sec && sec.closest("[hidden]") === null && q(T[key][0])) { clearInterval(t); setTimeout(() => go(key), 300); }
+      else if (++tries > 80) clearInterval(t);
+    }, 100);
+  })();
   window.WZ_menu = { open, close };
 })();
