@@ -191,7 +191,9 @@
       $("ct-day").textContent = at({ weekday: "long", day: "numeric", month: "long" }); $("ct-hr").textContent = at({ hour: "numeric", minute: "2-digit" });
     }
     if (needEnter) {
-      $("ct-enter-t").textContent = "أثبت أنك إنسان ثم ادخل المسابقة."; $("ct-enter-t").hidden = !ST.captcha;
+      const goT = started ? "ادخل المسابقة" : "التسجيل في المسابقة";      // قبل البداية: تسجيل، بعد البداية: دخول
+      $("ct-enter-t").textContent = "أثبت أنك إنسان"; $("ct-enter-t").hidden = !ST.captcha;
+      if ($("ct-go").textContent !== goT) $("ct-go").textContent = goT;
       if (ST.captcha) { mountTs(); $("ct-go").disabled = !tsTok; } else $("ct-go").disabled = false;
       $("ct-ts").hidden = !ST.captcha;
     }
