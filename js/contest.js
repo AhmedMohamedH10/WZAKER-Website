@@ -22,6 +22,10 @@
   const dur = ms => { const t = Math.max(0, Math.round(ms / 1000)), m = Math.floor(t / 60), s = t % 60; return (m ? num(m) + " د " : "") + num(s) + " ث"; };
   const rate = r => Number(r).toLocaleString("ar-EG", { maximumFractionDigits: 1 }).replace(/\u066C/g, ",") + " تسبيحة/ث";
   const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt !== undefined) e.textContent = txt; return e; };
+  // تخمين التأنيث من الاسم (فازت / فاز): قائمة أسماء بنات معروفة + أمة/أم/بنت/ست في أول الاسم. أي اسم مش متأكدين منه بيفضل «فاز»
+  const nrm = x => x.replace(/[\u064B-\u065F\u0670\u0640]/g, "").replace(/[أإآٱ]/g, "ا").replace(/ى/g, "ي").replace(/ة/g, "ه");
+  const FEM = new Set(("فاطمة عائشة عايشة مريم زينب خديجة أسماء سارة ساره سلمى هبة هدى هاجر آية أية رقية رحمة رنا رنيم ريم رحاب دعاء شيماء إيمان أميرة أمينة أمل إسراء آلاء ألاء علياء منال منى منة مي ميار ميرنا نهى نهال نادين نسمة نجلاء نورهان هنا هند هيا ياسمين يارا يمنى جميلة جنة جني حنان حبيبة حليمة حفصة سمر سمية سعاد سهام سهير سحر صفية ضحى عبير عفاف غادة فرح لبنى ليلى لمياء لينا ماجدة مروة منار ندى نوال وفاء ولاء وردة زهراء زهرة رويدا روان رودينا رغد رهف ريهام جيهان دينا داليا دنيا سجى شهد شروق أروى أحلام").split(" ").map(nrm));
+  const isFem = name => { const w = nrm(String(name || "").trim()).split(/\s+/)[0]; return FEM.has(w) || ["امه", "ام", "بنت", "ست"].includes(w); };
 
   // ───── دخول جوجل ─────
   function gbtns() {
@@ -211,7 +215,7 @@
     }
     if (!$("ct-end").hidden) {
       const c = region(w.cc);
-      $("ct-win").replaceChildren("انتهت المسابقة، لقد فاز ", el("span", "ct-wname", w.name), " في مكرمة ذي الألف");
+      $("ct-win").replaceChildren(isFem(w.name) ? "انتهت المسابقة، لقد فازت " : "انتهت المسابقة، لقد فاز ", el("span", "ct-wname", w.name), " في مكرمة ذي الألف");
       $("ct-win-s").textContent = `بلغ ${num(w.t || ST.target)} تسبيحة في ${dur(w.d)}` + (c ? " · " + c : "");
     }
     if (!$("ct-hall").hidden) {
