@@ -170,4 +170,4 @@ npx wrangler d1 execute wzaker --remote --file=backup.sql
 سطر «ذكرنا الله معاً X مرة» تحت الإحصائيات. الرقم بيتحفظ في `settings` تحت `taps_total` ويزيد مع كل مزامنة، وأول نبضة بيتحسب من مجموع `players.total`، فمفيش migration. بيحسب تسبيحات حسابات جوجل بس (اللي بتتزامن مع السيرفر). لو عايز تصفّره: `DELETE FROM settings WHERE k='taps_total';` وهيتحسب تاني من المجموع.
 
 ## تعديلات هذه النسخة
-شوف `CHANGES-AR.md` (حماية البوتات جوّا الكود + اختبارات آلية في مجلد `tests/`).
+شوف `docs/CHANGES-AR.md` (حماية البوتات جوّا الكود + اختبارات آلية في مجلد `tests/`).

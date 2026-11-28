@@ -88,8 +88,6 @@ footer .fn a:hover,footer .fn a:focus-visible{color:var(--accent)}
 footer .by{margin-top:4px;font-family:var(--font-main);font-size:.9rem}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
-
-
 /* بلور خفيف ورا الدواير واللوحات علشان الزخارف ما تتخانقش مع الأيقونات */
 .disc{-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .board{-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
