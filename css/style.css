@@ -55,7 +55,7 @@ h2{font-family:var(--font-main);font-weight:400;font-size:1.5rem;text-align:cent
   transition:transform .45s ease,border-color .45s ease,box-shadow .45s ease,background .45s ease}
 .disc::before{content:"";position:absolute;inset:0;border-radius:50%;border:1px solid rgba(var(--accent-rgb),.5);
   opacity:0;transform:scale(1);transition:transform .7s ease,opacity .7s ease}
-.disc svg .d,.mf-item svg .d{fill:var(--accent);stroke:none}
+.disc svg .d{fill:var(--accent);stroke:none}
 .disc svg{width:50px;height:50px;fill:none;stroke:var(--accent);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;
   transition:transform .45s ease}
 .name{font-size:1.1rem}
@@ -66,26 +66,6 @@ h2{font-family:var(--font-main);font-weight:400;font-size:1.5rem;text-align:cent
 button.dl{background:none;border:0;padding:0;font:inherit;cursor:pointer}
 .name{display:inline-flex;align-items:center;gap:5px}
 .chev{width:14px;height:14px;fill:none;stroke:var(--dim);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .35s ease,stroke .35s ease}
-#dl-mf[aria-expanded=true] .chev{transform:rotate(180deg);stroke:var(--accent)}
-#dl-mf[aria-expanded=true] .disc{border-color:rgba(var(--accent-rgb),.55);background:rgba(var(--accent-rgb),.08)}
-.warn-b{position:absolute;top:5px;right:5px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
-  background:var(--bg);border:1px solid rgba(255,200,87,.55)}
-.warn-b svg,.disc .warn-b svg{width:16px;height:16px;fill:none;stroke:#ffc857;stroke-width:2;stroke-linecap:round;transform:none}
-.warn-b svg .d,.disc .warn-b svg .d,.mf-note svg .d{fill:#ffc857;stroke:none}
-.mf{max-width:250px;margin:22px auto 0;padding:8px;border:1px solid var(--line);border-radius:20px;background:rgba(var(--accent-rgb),.03);
-  display:flex;flex-direction:column;gap:6px;animation:mfin .35s ease both}
-.mf[hidden]{display:none}
-@keyframes mfin{from{opacity:0;transform:translateY(-8px)}}
-.mf-note{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--dim);font-size:.75rem;padding:2px 4px 4px;line-height:1.5}
-.mf-note svg{width:15px;height:15px;flex:none;fill:none;stroke:#ffc857;stroke-width:1.8;stroke-linecap:round}
-.mf-item{display:flex;align-items:center;gap:10px;padding:7px 12px;border:1px solid var(--line);border-radius:14px;font-size:.9rem;color:var(--text);text-decoration:none;
-  transition:background .3s ease,border-color .3s ease}
-.mf-item svg{width:19px;height:19px;flex:none;fill:none;stroke:var(--accent);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-.mf-item .t{flex:1}
-.mf-item .go{width:16px;height:16px;opacity:.7}
-.mf-item.off{opacity:.45;pointer-events:none}
-@media (hover:hover){.mf-item:hover{background:rgba(var(--accent-rgb),.08);border-color:rgba(var(--accent-rgb),.5)}}
-.mf-item:focus-visible{outline:none;border-color:var(--accent)}
 @media (hover:hover){
   .dl:hover .disc,.dl:focus-visible .disc{transform:translateY(-6px);border-color:rgba(var(--accent-rgb),.55);
     background:rgba(var(--accent-rgb),.08);box-shadow:0 10px 40px rgba(var(--accent-rgb),.16)}
@@ -108,23 +88,6 @@ footer .fn a:hover,footer .fn a:focus-visible{color:var(--accent)}
 footer .by{margin-top:4px;font-family:var(--font-main);font-size:.9rem}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
-/* مديا فاير: القايمة بتنزل تحت دايرة مديا فاير بالظبط، النسختين فوق بعض */
-.dl-wrap{display:flex;flex-direction:column;align-items:center}
-.mf{width:176px;max-width:none;margin:16px -22px 0;padding:8px;border-radius:20px;display:flex;flex-direction:column;gap:6px}
-.mf-note{font-size:.66rem;padding:2px 2px 4px;white-space:nowrap;gap:5px}
-.mf-item{padding:8px 12px;gap:10px;font-size:.88rem}
-
-@media (min-width:700px){
-  .mf{width:270px;margin:18px -69px 0;padding:12px;gap:9px;border-radius:24px}
-  .mf-note{font-size:.85rem;gap:8px;padding:2px 4px 6px}
-  .mf-note svg{width:17px;height:17px}
-  .mf-item{padding:12px 16px;font-size:1rem;gap:12px;border-radius:18px}
-  .mf-item svg{width:22px;height:22px}
-  .mf-item .go{width:18px;height:18px}
-}
-
-/* قايمة مديا فاير: خلفية معتمة علشان زخارف الخلفية ما تبانش من ورا الكلام */
-.mf{background:linear-gradient(rgba(var(--accent-rgb),.04),rgba(var(--accent-rgb),.04)),rgba(9,15,11,.94);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 
 
 /* بلور خفيف ورا الدواير واللوحات علشان الزخارف ما تتخانقش مع الأيقونات */
@@ -148,20 +111,21 @@ footer .by{margin-top:4px;font-family:var(--font-main);font-size:.9rem}
 .wz-logo{-webkit-user-drag:none;user-drag:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;pointer-events:none}
 .sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
-/* شاشات صغيرة (360px وأقل): دواير التحميل أصغر علشان الاتنين يفضلوا جنب بعض، وقايمة مديا فاير ما تطلعش برّه الشاشة */
-@media (max-width:380px){
-  .downloads{gap:26px 22px}
-  .disc{width:112px;height:112px}
-  .disc svg{width:44px;height:44px}
-  .mf{width:168px;margin:16px -28px 0}
-  .mf-note{white-space:normal;text-align:center}
+/* الموبايل: الـ3 دواير جنب بعض في صف واحد، وبتصغر مع عرض الشاشة */
+@media (max-width:560px){
+  .downloads{flex-wrap:nowrap;gap:10px}
+  .dl{flex:1 1 0;min-width:0;max-width:132px;gap:10px}
+  .disc{width:100%;height:auto;aspect-ratio:1}
+  .disc svg{width:40%;height:auto}
+  .name{font-size:1rem}
+  .meta{font-size:.78rem}
 }
 
 /* الموبايل: من غير بلور (backdrop-filter) خالص، لأنه كان بيعيد حساب الخلفية كل فريم ويعلّق السكرول. بدله تعتيم خفيف ثابت */
 @media (pointer:coarse){
   html:not(.blur-ok) *,html:not(.blur-ok) *::before,html:not(.blur-ok) *::after{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
   /* الموبايلات القوية بس (class blur-ok من config.js): بلور خفيف 4px بدل التعتيم، والضعيفة تفضل من غير بلور */
-  html.blur-ok .mf,html.blur-ok .disc,html.blur-ok .board,html.blur-ok .dy-card,html.blur-ok .ct-card,html.blur-ok #lb,html.blur-ok .sec-ic,
+  html.blur-ok .disc,html.blur-ok .board,html.blur-ok .dy-card,html.blur-ok .ct-card,html.blur-ok #lb,html.blur-ok .sec-ic,
   html.blur-ok .ch input,html.blur-ok .ch button:not(.tap){-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
   html.blur-ok .verse::before,html.blur-ok .tag::before,html.blur-ok h2::before,html.blur-ok .app-name::before,html.blur-ok .app-ver::before,html.blur-ok .dk-cur::before,html.blur-ok .hello::before{-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
   .disc{background:linear-gradient(rgba(var(--accent-rgb),.035),rgba(var(--accent-rgb),.035)),rgba(9,15,11,.72)}

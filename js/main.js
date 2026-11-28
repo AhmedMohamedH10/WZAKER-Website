@@ -50,21 +50,6 @@ function fallback(){
   } catch (e) { fallback(); }
 })();
 
-/* مديا فاير: قايمة منسدلة فيها نسخة الكمبيوتر والتليفون */
-(() => {
-  const btn = document.getElementById("dl-mf"), box = document.getElementById("mf");
-  if (!btn || !box) return;
-  for (const [id, url] of [["mf-pc", MEDIAFIRE.pc], ["mf-phone", MEDIAFIRE.phone]]) {
-    const a = document.getElementById(id);
-    if (url) a.href = url;
-    else { a.removeAttribute("href"); a.classList.add("off"); a.querySelector(".t").textContent += " (قريباً)"; }
-  }
-  const set = open => { box.hidden = !open; btn.setAttribute("aria-expanded", open); };
-  btn.addEventListener("click", e => { e.stopPropagation(); set(box.hidden); });
-  document.addEventListener("click", e => { if (!box.hidden && !box.contains(e.target)) set(false); });
-  document.addEventListener("keydown", e => { if (e.key === "Escape" && !box.hidden) { set(false); btn.focus(); } });
-})();
-
 /* أندرويد: لينك ثابت لأحدث WZAKER.apk في ريبو الأندرويد، وبعدين نجيب الحجم والإصدار لو GitHub رد */
 (async () => {
   const el = document.getElementById("dl-android");
