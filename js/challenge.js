@@ -243,28 +243,52 @@
     const keep = () => { try { localStorage.setItem(K, JSON.stringify(st)); } catch (e) {} };
     let editing = -1;
     const wrap = $("dk-w"), xBtn = $("dk-x");
-    function paint(anim) {
-      const t = all()[st.i]; cur.textContent = t; xBtn.hidden = all().length <= 1;
-      cur.classList.toggle("long", t.length > 30);
-      if (anim && !reduce && cur.animate) cur.animate([{ opacity: 0, transform: "translateY(4px)" }, { opacity: 1, transform: "none" }], { duration: 220, easing: "ease-out" });
+    // موضع X: بجوار حافة الكلام الفعلية من أعلى اليسار بمسافة صغيرة (وفوق الحافة إن ضاق العرض)
+    function placeX() {
+      if (xBtn.hidden || wrap.hidden) return;
+      const r = document.createRange(); r.selectNodeContents(cur);
+      const rs = [...r.getClientRects()].filter(x => x.width > 0); if (!rs.length) return;
+      const wr = wrap.getBoundingClientRect(), L = Math.min(...rs.map(x => x.left)), T = Math.min(...rs.map(x => x.top)), sz = 16, gap = 6;
+      let left = L - wr.left - sz - gap, top = T - wr.top - 2;
+      if (L - sz - gap < 6) { left = L - wr.left - 2; top = T - wr.top - sz - 2; }
+      xBtn.style.left = Math.round(left) + "px"; xBtn.style.top = Math.round(top) + "px";
     }
-    const next = () => { st.i = (st.i + 1) % all().length; keep(); paint(true); };
-    // ضغطتين عاديتين = تبديل الذكر | ضغطة مطوّلة = إضافة ذكر (أو تعديل المضاف)
-    let lpT = 0, lpDone = false, lpX = 0, lpY = 0, lastUp = 0;
+    function paint(anim) {   // anim: 1 = من اليمين، -1 = من اليسار، true = ظهور هادئ
+      const t = all()[st.i]; cur.textContent = t; xBtn.hidden = all().length <= 1; placeX();
+      cur.classList.toggle("long", t.length > 30);
+      if (anim && !reduce && cur.animate) { const dx = (anim === 1 ? 1 : anim === -1 ? -1 : 0) * 14; const t0 = { transform: dx ? "translateX(" + dx + "px)" : "translateY(4px)" }, o = { duration: 320, easing: "cubic-bezier(.22,.61,.36,1)" }; cur.animate([{ opacity: 0, ...t0 }, { opacity: 1, transform: "none" }], o); xBtn.animate([{ opacity: 0, ...t0 }, { transform: "none" }], o); }
+    }
+    // اتجاه الحركة: السحب لليسار = التالي، ولليمين = السابق (وفق اتجاه القراءة العربية)
+    let busy = false;
+    const go = d => {
+      const n = all().length; if (n < 2 || busy) return;
+      const swap = () => { st.i = (st.i + d + n) % n; keep(); paint(d); dismissHint(); };
+      if (reduce || !cur.animate) return swap();
+      busy = true;   // خروج هادئ للذكر الحالي ثم دخول الجديد
+      const kf = [{ transform: "none" }, { opacity: 0, transform: "translateX(" + (-d * 14) + "px)" }], op = { duration: 160, easing: "ease-in", fill: "forwards" };
+      const out = cur.animate(kf, op), xo = xBtn.animate(kf, op);
+      out.onfinish = () => { out.cancel(); xo.cancel(); swap(); busy = false; };
+      out.oncancel = () => { xo.cancel(); busy = false; };
+    };
+    const next = () => go(1), prev = () => go(-1);
+    // سحب أفقي = تبديل الذكر | ضغطة مطوّلة = إضافة ذكر (أو تعديل المضاف)
+    let lpT = 0, lpDone = false, lpX = 0, lpY = 0, down = false;
     const lpStop = () => { clearTimeout(lpT); lpT = 0; };
     cur.addEventListener("pointerdown", e => {
       if (e.pointerType === "mouse" && e.button !== 0) return;
-      lpDone = false; lpX = e.clientX; lpY = e.clientY; lpStop();
-      lpT = setTimeout(() => { lpT = 0; lpDone = true; lastUp = 0; try { navigator.vibrate && navigator.vibrate(12); } catch (_) {} openEdit(); }, 520);
+      down = true; lpDone = false; lpX = e.clientX; lpY = e.clientY; lpStop();
+      lpT = setTimeout(() => { lpT = 0; lpDone = true; down = false; try { navigator.vibrate && navigator.vibrate(12); } catch (_) {} dismissHint(); openEdit(); }, 520);
     });
     cur.addEventListener("pointermove", e => { if (lpT && Math.hypot(e.clientX - lpX, e.clientY - lpY) > 10) lpStop(); });
-    for (const ev of ["pointerleave", "pointercancel"]) cur.addEventListener(ev, lpStop);
-    cur.addEventListener("pointerup", () => {
+    cur.addEventListener("pointerup", e => {
       lpStop();
       if (lpDone) { lpDone = false; return; }
-      const t = performance.now();
-      if (t - lastUp < 340) { lastUp = 0; next(); } else lastUp = t;
+      if (!down) return; down = false;
+      const dx = e.clientX - lpX, dy = e.clientY - lpY;
+      if (e.pointerType === "mouse") { if (Math.hypot(dx, dy) < 8) next(); }   // الماوس: نقرة عادية تبدّل الذكر
+      else if (Math.abs(dx) > 36 && Math.abs(dx) > Math.abs(dy) * 1.4) { dx < 0 ? next() : prev(); }   // اللمس: سحب أفقي
     });
+    for (const ev of ["pointerleave", "pointercancel"]) cur.addEventListener(ev, () => { lpStop(); down = false; });
     cur.addEventListener("contextmenu", e => e.preventDefault());
     cur.addEventListener("dblclick", e => e.preventDefault());
     function openEdit() {
@@ -272,8 +296,8 @@
       inp.value = editing >= 0 ? st.mine[editing] : "";
       form.hidden = false; wrap.hidden = true; hint.hidden = true; inp.focus();
     }
-    function closeEdit() { form.hidden = true; wrap.hidden = false; hint.hidden = false; }
-    cur.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); if (e.shiftKey) openEdit(); else next(); } });   // Enter يبدّل | Shift+Enter يضيف
+    function closeEdit() { form.hidden = true; wrap.hidden = false; hint.hidden = false; placeX(); }
+    cur.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); if (e.shiftKey) openEdit(); else next(); } else if (e.key === "ArrowLeft") { e.preventDefault(); next(); } else if (e.key === "ArrowRight") { e.preventDefault(); prev(); } });   // الأسهم أو Enter تبدّل | Shift+Enter تضيف
     form.addEventListener("submit", e => {
       e.preventDefault();
       const t = inp.value.replace(/\s+/g, " ").replace(/[،,]/g, "").trim().slice(0, 90);
@@ -290,6 +314,12 @@
       if (i < nb) st.hid.push(base()[i]); else st.mine.splice(i - nb, 1);
       st.i = Math.min(i, all().length - 1); keep(); paint(true);
     });
+    window.addEventListener("resize", placeX); if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeX);
+    // تلميح الإيماءات: يظهر مرة واحدة فقط في أول زيارة ثم يختفي
+    const HK = "wz_dkhint", dk = $("dk"); let hintT = 0;
+    function dismissHint() { clearTimeout(hintT); if (!dk.classList.contains("dk-first")) return; dk.classList.remove("dk-first"); try { localStorage.setItem(HK, "1"); } catch (e) {} }
+    let seen = false; try { seen = !!localStorage.getItem(HK); } catch (e) {}
+    if (!seen) { setTimeout(() => dk.classList.add("dk-first"), 1200); hintT = setTimeout(dismissHint, 11000); }
     paint();
   })();
 
