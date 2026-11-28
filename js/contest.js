@@ -215,7 +215,8 @@
     }
     if (!$("ct-end").hidden) {
       const c = region(w.cc);
-      $("ct-win").replaceChildren(isFem(w.name) ? "انتهت المسابقة، لقد فازت " : "انتهت المسابقة، لقد فاز ", el("span", "ct-wname", w.name), " في مكرمة ذي الألف");
+      const l2 = el("span", "ct-w2"); l2.append(isFem(w.name) ? "لقد فازت " : "لقد فاز ", el("span", "ct-wname", w.name), " في مكرمة ذي الألف");
+      $("ct-win").replaceChildren(el("span", "ct-w1", "انتهت المسابقة"), l2);
       $("ct-win-s").textContent = `بلغ ${num(w.t || ST.target)} تسبيحة في ${dur(w.d)}` + (c ? " · " + c : "");
     }
     if (!$("ct-hall").hidden) {
