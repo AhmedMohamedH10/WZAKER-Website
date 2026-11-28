@@ -29,23 +29,8 @@
     return r.json();
   }
 
-  // ───── حلقة السبحة: 33 حبة، بتنوّر مع العد وبتكمل دورة كل 33 ─────
-  const NS = "http://www.w3.org/2000/svg", BEADS = [];
-  (() => {
-    const svg = $("beads"), mk = (t, at) => { const e = document.createElementNS(NS, t); for (const k in at) e.setAttribute(k, at[k]); return e; };
-    svg.append(mk("circle", { class: "ring", cx: 120, cy: 120, r: 117 }));
-    for (let i = 0; i < 33; i++) {
-      const a = i / 33 * 2 * Math.PI - Math.PI / 2;
-      const c = mk("circle", { class: "b", cx: (120 + 104 * Math.cos(a)).toFixed(2), cy: (120 + 104 * Math.sin(a)).toFixed(2), r: i === 0 ? 4 : 3 });
-      c.style.setProperty("--i", i); BEADS.push(c); svg.append(c);
-    }
-  })();
-  let lit = -1;
-  function paintBeads(n) {
-    const k = n > 0 && n % 33 === 0 ? 33 : n % 33;
-    if (k === lit) return; lit = k;
-    BEADS.forEach((c, i) => { c.classList.toggle("on", i < k); c.classList.toggle("head", i === k - 1); });
-  }
+  // ───── حلقة السبحة: خرز زمرد بفيزياء كاملة (js/beads.js) ─────
+  const paintBeads = n => window.WZ_beads && WZ_beads.set(n);
   // وضع المكرمة: لما تبدأ بتتصفّر السبحة وتعدّ للمكرمة بس (contest.js بيحدّث WZ_ct)، ولما تخلص بترجع لأرقامك القديمة
   window.WZ_ct = { on: false, count: 0 };
   const TAPL = document.querySelector("#tap .tap-l"), TAPL0 = TAPL ? TAPL.textContent : "";
@@ -95,15 +80,9 @@
     try { navigator.vibrate && navigator.vibrate(done ? [30, 50, 30] : 8); } catch (_) {}
     if (reduce || !$("tap").animate) return;
     try {
-      const g = $("glow").getBoundingClientRect();                      // الوهج يطلع من مكان الضغط (ولو بالكيبورد من النص)
-      $("glow").style.setProperty("--px", (e.detail ? e.clientX - g.left : g.width / 2) + "px");
-      $("glow").style.setProperty("--py", (e.detail ? e.clientY - g.top : g.height / 2) + "px");
-      $("glow").animate([{ opacity: 1 }, { opacity: 0 }], { duration: 700, easing: "ease-out" });
-      $("tap").animate([{ transform: "scale(.94)" }, { transform: "scale(1)" }], { duration: 200, easing: "ease-out", pseudoElement: "::before" });
-      $("tap").animate([{ transform: "scale(1)", opacity: .8 }, { transform: "scale(1.2)", opacity: 0 }], { duration: 560, easing: "ease-out", pseudoElement: "::after" });
       $("n").animate([{ transform: "scale(1.09)" }, { transform: "scale(1)" }], { duration: 180, easing: "ease-out" });
     } catch (_) {}
-    if (done) { const s = $("beads"); s.classList.remove("wave"); void s.getBoundingClientRect(); s.classList.add("wave"); setTimeout(() => s.classList.remove("wave"), 1300); }
+    if (done && window.WZ_beads) WZ_beads.ripple();
   });
 
   // ───── المزامنة ─────
@@ -243,34 +222,58 @@
 
   // ───── الأذكار تحت الدايرة: ضغطة تبدّل الذكر، وضغطتين تضيف ذكر (أو تعدّل اللي أضافه) ─────
   (() => {
-    const BASE = ["سبحان الله", "الحمد لله", "لا إله إلا الله وحده لا شريك له له الملك وله الحمد وهو على كل شيء قدير", "لا حول ولا قوة إلا بالله", "استغفر الله"];
+    const BASE0 = ["سبحان الله", "الحمد لله", "لا إله إلا الله وحده لا شريك له له الملك وله الحمد وهو على كل شيء قدير", "لا حول ولا قوة إلا بالله", "استغفر الله"];
+    const MORE = ["الله أكبر", "لا إله إلا الله", "سبحان الله وبحمده", "سبحان الله العظيم", "سبحان الله وبحمده، سبحان الله العظيم",
+      "سبحان الله، والحمد لله، ولا إله إلا الله، والله أكبر", "أستغفر الله العظيم وأتوب إليه", "اللهم صلِّ وسلِّم على نبينا محمد",
+      "لا إله إلا أنت سبحانك إني كنت من الظالمين", "حسبي الله لا إله إلا هو عليه توكلت وهو رب العرش العظيم", "رضيت بالله ربًّا وبالإسلام دينًا وبمحمد نبيًّا",
+      "اللهم إنك عفو تحب العفو فاعف عني", "يا حي يا قيوم برحمتك أستغيث", "ربِّ اغفر لي وتب عليَّ إنك أنت التواب الرحيم",
+      "الحمد لله حمدًا كثيرًا طيبًا مباركًا فيه", "سبحان الله وبحمده عدد خلقه ورضا نفسه وزنة عرشه ومداد كلماته"];
+    const BASE = [...BASE0, ...MORE];
     const K = "wz_dhikr2", cur = $("dk-cur"), form = $("dk-edit"), inp = $("dk-in"), hint = $("dk-hint");
-    let st = { i: 0, mine: [] };
+    let st = { i: 0, mine: [], hid: [] };
     try { Object.assign(st, JSON.parse(localStorage.getItem(K) || "{}")); } catch (e) {}
     if (!Array.isArray(st.mine)) st.mine = [];
+    if (st.v !== 2) { if (st.i >= BASE0.length) st.i += MORE.length; st.v = 2; }   // الأذكار الجاهزة زادت: نحافظ على الذكر المختار والمضاف
     st.mine = st.mine.filter(x => typeof x === "string").slice(0, 20);
-    const all = () => [...BASE, ...st.mine];
+    st.hid = Array.isArray(st.hid) ? st.hid.filter(x => BASE.includes(x)) : [];
+    const base = () => BASE.filter(x => !st.hid.includes(x));
+    const all = () => [...base(), ...st.mine];
+    if (!all().length) st.hid = [];   // أمان: لازم يفضل ذكر واحد على الأقل
     if (!(st.i >= 0 && st.i < all().length)) st.i = 0;
     const keep = () => { try { localStorage.setItem(K, JSON.stringify(st)); } catch (e) {} };
     let editing = -1;
+    const wrap = $("dk-w"), xBtn = $("dk-x");
     function paint(anim) {
-      const t = all()[st.i]; cur.textContent = t;
+      const t = all()[st.i]; cur.textContent = t; xBtn.hidden = all().length <= 1;
       cur.classList.toggle("long", t.length > 30);
       if (anim && !reduce && cur.animate) cur.animate([{ opacity: 0, transform: "translateY(4px)" }, { opacity: 1, transform: "none" }], { duration: 220, easing: "ease-out" });
     }
-    let timer = 0;
-    cur.addEventListener("click", () => {
-      clearTimeout(timer);
-      timer = setTimeout(() => { st.i = (st.i + 1) % all().length; keep(); paint(true); }, 260);   // نستنى شوية علشان الضغطتين ما يبدّلوش الذكر
+    const next = () => { st.i = (st.i + 1) % all().length; keep(); paint(true); };
+    // ضغطتين عاديتين = تبديل الذكر | ضغطة مطوّلة = إضافة ذكر (أو تعديل المضاف)
+    let lpT = 0, lpDone = false, lpX = 0, lpY = 0, lastUp = 0;
+    const lpStop = () => { clearTimeout(lpT); lpT = 0; };
+    cur.addEventListener("pointerdown", e => {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      lpDone = false; lpX = e.clientX; lpY = e.clientY; lpStop();
+      lpT = setTimeout(() => { lpT = 0; lpDone = true; lastUp = 0; try { navigator.vibrate && navigator.vibrate(12); } catch (_) {} openEdit(); }, 520);
     });
+    cur.addEventListener("pointermove", e => { if (lpT && Math.hypot(e.clientX - lpX, e.clientY - lpY) > 10) lpStop(); });
+    for (const ev of ["pointerleave", "pointercancel"]) cur.addEventListener(ev, lpStop);
+    cur.addEventListener("pointerup", () => {
+      lpStop();
+      if (lpDone) { lpDone = false; return; }
+      const t = performance.now();
+      if (t - lastUp < 340) { lastUp = 0; next(); } else lastUp = t;
+    });
+    cur.addEventListener("contextmenu", e => e.preventDefault());
+    cur.addEventListener("dblclick", e => e.preventDefault());
     function openEdit() {
-      editing = st.i >= BASE.length ? st.i - BASE.length : -1;     // ذكر مضاف: تعديل، غير كده: إضافة جديد
+      editing = st.i >= base().length ? st.i - base().length : -1;     // ذكر مضاف: تعديل، غير كده: إضافة جديد
       inp.value = editing >= 0 ? st.mine[editing] : "";
-      form.hidden = false; cur.hidden = true; hint.hidden = true; inp.focus();
+      form.hidden = false; wrap.hidden = true; hint.hidden = true; inp.focus();
     }
-    function closeEdit() { form.hidden = true; cur.hidden = false; hint.hidden = false; }
-    cur.addEventListener("dblclick", e => { e.preventDefault(); clearTimeout(timer); openEdit(); });
-    cur.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); st.i = (st.i + 1) % all().length; keep(); paint(true); } });
+    function closeEdit() { form.hidden = true; wrap.hidden = false; hint.hidden = false; }
+    cur.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); if (e.shiftKey) openEdit(); else next(); } });   // Enter يبدّل | Shift+Enter يضيف
     form.addEventListener("submit", e => {
       e.preventDefault();
       const t = inp.value.replace(/\s+/g, " ").replace(/[،,]/g, "").trim().slice(0, 90);
@@ -279,6 +282,14 @@
       keep(); closeEdit(); paint(true);
     });
     inp.addEventListener("keydown", e => { if (e.key === "Escape") closeEdit(); });
+    // حذف الذكر الحالي (X صغيرة): الجاهز بيتخبّى، والمضاف بيتمسح. لازم يفضل ذكر واحد على الأقل
+    xBtn.addEventListener("click", e => {
+      e.preventDefault(); e.stopPropagation();
+      if (all().length <= 1) return;
+      const i = st.i, nb = base().length;
+      if (i < nb) st.hid.push(base()[i]); else st.mine.splice(i - nb, 1);
+      st.i = Math.min(i, all().length - 1); keep(); paint(true);
+    });
     paint();
   })();
 
