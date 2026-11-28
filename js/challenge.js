@@ -248,13 +248,14 @@
       if (xBtn.hidden || wrap.hidden) return;
       const r = document.createRange(); r.selectNodeContents(cur);
       const rs = [...r.getClientRects()].filter(x => x.width > 0); if (!rs.length) return;
-      const wr = wrap.getBoundingClientRect(), L = Math.min(...rs.map(x => x.left)), T = Math.min(...rs.map(x => x.top)), sz = 16, gap = 6;
+      let tx = 0, ty = 0; try { const tf = getComputedStyle(cur).transform; if (tf && tf !== "none") { const m = new DOMMatrixReadOnly(tf); tx = m.m41; ty = m.m42; } } catch (_) {}
+      const wr = wrap.getBoundingClientRect(), L = Math.min(...rs.map(x => x.left)) - tx, T = Math.min(...rs.map(x => x.top)) - ty, sz = 16, gap = 6;
       let left = L - wr.left - sz - gap, top = T - wr.top - 2;
       if (L - sz - gap < 6) { left = L - wr.left - 2; top = T - wr.top - sz - 2; }
       xBtn.style.left = Math.round(left) + "px"; xBtn.style.top = Math.round(top) + "px";
     }
     function paint(anim) {   // anim: 1 = من اليمين، -1 = من اليسار، true = ظهور هادئ
-      const t = all()[st.i]; cur.textContent = t; xBtn.hidden = all().length <= 1; placeX();
+      const t = all()[st.i]; cur.textContent = t; xBtn.hidden = all().length <= 1; placeX(); requestAnimationFrame(placeX);
       cur.classList.toggle("long", t.length > 30);
       if (anim && !reduce && cur.animate) { const dx = (anim === 1 ? 1 : anim === -1 ? -1 : 0) * 14; const t0 = { transform: dx ? "translateX(" + dx + "px)" : "translateY(4px)" }, o = { duration: 320, easing: "cubic-bezier(.22,.61,.36,1)" }; cur.animate([{ opacity: 0, ...t0 }, { opacity: 1, transform: "none" }], o); xBtn.animate([{ opacity: 0, ...t0 }, { transform: "none" }], o); }
     }
@@ -314,7 +315,10 @@
       if (i < nb) st.hid.push(base()[i]); else st.mine.splice(i - nb, 1);
       st.i = Math.min(i, all().length - 1); keep(); paint(true);
     });
-    window.addEventListener("resize", placeX); if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeX);
+    const again = () => requestAnimationFrame(placeX);
+    window.addEventListener("resize", again); window.addEventListener("load", () => { again(); setTimeout(placeX, 400); });
+    if (document.fonts) { if (document.fonts.addEventListener) document.fonts.addEventListener("loadingdone", again); if (document.fonts.ready) document.fonts.ready.then(again); }
+    if (window.ResizeObserver) new ResizeObserver(again).observe(cur);
     // تلميح الإيماءات: يظهر مرة واحدة فقط في أول زيارة ثم يختفي
     const HK = "wz_dkhint", dk = $("dk"); let hintT = 0;
     function dismissHint() { clearTimeout(hintT); if (!dk.classList.contains("dk-first")) return; dk.classList.remove("dk-first"); try { localStorage.setItem(HK, "1"); } catch (e) {} }
